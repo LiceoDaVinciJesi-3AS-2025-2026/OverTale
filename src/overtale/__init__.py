@@ -1,2 +1,1 @@
-def main() -> None:
-    print("Hello from overtale!")
+#codice del bellissimo gioco overtaleeeee!!!1(gioco fantasy molto bellooo.)
