@@ -30,7 +30,12 @@ box = pygame.Rect(250, 180, 300, 250)
 #------------------#
 
 # Player
-player = pygame.Rect(390, 300, 20, 20)
+player_img = pygame.image.load("Hawking.png").convert_alpha()
+player_img = pygame.transform.scale(player_img, (50, 50))
+
+player_rect = player_img.get_rect()
+player_rect.center = box.center  # parte al centro della battle box
+
 player_speed = 5
 hp = 100
 
@@ -51,17 +56,23 @@ enemy_attack_duration = 180  # frame turno nemico
 def handle_player_movement():
     keys = pygame.key.get_pressed()
 
+    # Velocità normale
+    speed = player_speed
+    
+    # Se tieni premuto SHIFT vai più lento (stile Undertale)
+    if keys[pygame.K_LSHIFT]:
+        speed = 2
+
     if keys[pygame.K_LEFT]:
-        player.x -= player_speed
+        player_rect.x -= speed
     if keys[pygame.K_RIGHT]:
-        player.x += player_speed
+        player_rect.x += speed
     if keys[pygame.K_UP]:
-        player.y -= player_speed
+        player_rect.y -= speed
     if keys[pygame.K_DOWN]:
-        player.y += player_speed
+        player_rect.y += speed
 
-    player.clamp_ip(box)
-
+    player_rect.clamp_ip(box)
 #--------------------------------#
 
 def spawn_attack():
@@ -83,9 +94,9 @@ def update_attacks():
 def check_collisions():
     global hp
     for attack in attacks[:]:
-        if player.colliderect(attack):
+        if player_rect.colliderect(attack):
             hp -= 1
-            attacks.remove(attack)  # Colpito, attacco rimosso
+            attacks.remove(attack)
 
 #--------------------------------#
 
@@ -138,7 +149,7 @@ def draw():
     pygame.draw.rect(screen, (255, 255, 255), box, 3)
 
     # Player
-    pygame.draw.rect(screen, (255, 0, 0), player)
+    screen.blit(player_img, player_rect)
 
     # Attacchi nemici
     for attack in attacks:
