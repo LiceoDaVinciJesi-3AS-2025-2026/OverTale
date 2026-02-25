@@ -14,44 +14,53 @@ def main() -> None:
     inizio = font_piccolo.render("Start", True, "white")
     impostazioni = font_piccolo.render("Impostazioni", True, "white")
     uscita_impostazioni = font_piccolo.render("Esci", True, "white")
-    risposta_sì = font_piccolo.render("Sì", True, "white")
+    risposta_sì = font_piccolo.render("Si", True, "white")
     risposta_no = font_piccolo.render("No", True, "white")
+    
+    immagine_sfondo = pygame.image.load("sfondo_schermata.png")
 
     clock = pygame.time.Clock()
-    running = True
+    schermata = "menù"
     
+    running = True
+
     while running:
-        # Schermata iniziale
-        screen.fill("black")
-        screen.blit(titolo, (500, 150))
-        screen.blit(inizio, (550, 317))
-        screen.blit(impostazioni, (550, 417))
-        screen.blit(uscita_impostazioni, (550, 517))
+        # bisogna creare i pulsanti, lo start, il menù impostazioni (con i salvataggi, il volume, ecc.), la parte "esci" del menù (facile) e un modulo con la funzione per salvare il gioco.
+        mPos = pygame.mouse.get_pos() 
+
+        screen.blit(immagine_sfondo, (0, 0))
+        # Schermata d'entrata
+        if schermata == "menù":
+            screen.blit(titolo, (350, 150))
+            screen.blit(inizio, (500, 317))
+            screen.blit(impostazioni, (380, 417))
+            screen.blit(uscita_impostazioni, (525, 517))
+        # Schermata d'uscita
+        elif schermata == "uscita":
+            screen.fill("black")
+            screen.blit(uscita_gioco, (120, 150))
+            screen.blit(risposta_sì, (500, 417))
+            screen.blit(risposta_no, (650, 417))
         
         pygame.display.flip()
 
-# Da controllare perché non me lo apre sul mio computer      
         for event in pygame.event.get():
-            
+# Il running = False è da togliere alla fine di tutto.
             if event.type == pygame.QUIT:
-                # Schermata d'uscita
-                screen.blit(uscita_gioco, (500, 150))
-                screen.blit(risposta_sì, (550, 417))
-                screen.blit(risposta_no, (700, 417))
-                
-                pygame.display.flip()
-                
-                if event.type == pygame.QUIT:
-                    running = False
+                schermata = "uscita"
+                running = False
             
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    screen.blit(uscita_gioco, (500, 150))
-                    screen.blit(risposta_sì, (550, 417))
-                    screen.blit(risposta_no, (700, 417))
-                    
-                    running = False
+                
+                if schermata == "menù":
+                    if event.key == pygame.K_ESCAPE:
+                        schermata = "uscita"
+            
+                elif schermata == "uscita":
+                    if event.key == pygame.K_ESCAPE:
+                        schermata = "menù"
 
     pygame.quit()
 
-main()
+if __name__ == "__main__":
+    main()
