@@ -36,7 +36,7 @@ def UnderTale_Fight():
     player_hp_max = 100
     sans_hp_max   = 100
 
-    PHASE_DURATION = 20_000   # ms
+    PHASE_DURATION = 5_000   # ms
 
     speed      = 5
     gravity    = 0.7
