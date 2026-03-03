@@ -17,6 +17,7 @@ def main() -> None:
     risposta_sì = font_piccolo.render("Si", True, "white")
     risposta_no = font_piccolo.render("No", True, "white")
     
+    # Questa è l'immagine dello sfondo.
     immagine_sfondo = pygame.image.load("sfondo_schermata.png")
 
     clock = pygame.time.Clock()
@@ -35,15 +36,20 @@ def main() -> None:
             screen.blit(inizio, (500, 317))
             screen.blit(impostazioni, (380, 417))
             screen.blit(uscita_impostazioni, (525, 517))
+            # Qua sono da aggiungere i pulsanti dell'inizio, delle impostazioni e dell'uscita.
+            
         # Schermata d'uscita
         elif schermata == "uscita":
             screen.fill("black")
             screen.blit(uscita_gioco, (120, 150))
             screen.blit(risposta_sì, (500, 417))
             screen.blit(risposta_no, (650, 417))
-        
+            # Qua sono da aggiungere i pulsanti del sì e del no.
+            
         pygame.display.flip()
-
+        # Questa parte del programma serve per le varie schermate: quando il videogiocatore preme un determinato tasto,
+        # la variabile 'schermata' cambia valore e, in base a esso, cambia la schermata.
+        # Per esempio, se premo il tasto esc (pygame.K_ESCAPE) e schermata = "menù", allora schermata diventa "uscita".
         for event in pygame.event.get():
 # Il running = False è da togliere alla fine di tutto.
             if event.type == pygame.QUIT:
@@ -55,10 +61,15 @@ def main() -> None:
                 if schermata == "menù":
                     if event.key == pygame.K_ESCAPE:
                         schermata = "uscita"
+#                     if event.type == pygame.MOUSEBUTTONDOWN:
+                        # Devo aggiungere i vari comandi per i diversi tipi di pulsanti della schermata (se premo quel determinato pulsante, il programma fa qualcosa).
             
                 elif schermata == "uscita":
                     if event.key == pygame.K_ESCAPE:
                         schermata = "menù"
+#                   if event.type == pygame.MOUSEBUTTONDOWN:
+                        # Devo aggiungere i vari comandi per i diversi tipi di pulsanti della schermata (se premo quel determinato pulsante, il programma fa qualcosa).
+
 
     pygame.quit()
 
