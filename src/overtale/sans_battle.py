@@ -6,7 +6,7 @@ pygame.init()
 
 WIDTH, HEIGHT = 900, 700
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("* Sans Battle")
+pygame.display.set_caption("Sans Battle")
 clock = pygame.time.Clock()
 
 font_big   = pygame.font.SysFont("arial", 32, bold=True)
@@ -25,18 +25,33 @@ BLUE   = (0, 80, 255)
 
 def UnderTale_Fight():
     # ── Arena ──────────────────────────────────────────────────────────
-    arena     = pygame.Rect(150, 200, 600, 300)
-    sans_rect = pygame.Rect(WIDTH // 2 - 55, 50, 110, 45)
+    arena    = pygame.Rect(150, 200, 600, 300)
+    sans_img = pygame.image.load("Sans.png")
+    sans_img = pygame.transform.scale(sans_img, (120, 120))
+    sans = sans_img.get_rect(centerx=WIDTH // 2, top=60)
 
     # ── Player ────────────────────────────────────────────────────────
-    player_img = pygame.image.load("Undertale.png")
-    player_img = pygame.transform.scale(player_img, (30, 30))
+    player_img  = pygame.image.load("Cuore.png")
+    player_img  = pygame.transform.scale(player_img, (30, 30))
     player_rect = player_img.get_rect(center=arena.center)
+
+    bone_src = pygame.image.load("Sans_osso.png").convert_alpha()
+
+    def draw_bone(rect, clip_area):
+        """Disegna l'immagine osso scalata sul rettangolo, rispettando il clipping dell'arena."""
+        clipped = rect.clip(clip_area)
+        if clipped.width <= 0 or clipped.height <= 0:
+            return
+        scaled   = pygame.transform.scale(bone_src, (rect.width, rect.height))
+        offset_x = clipped.x - rect.x
+        offset_y = clipped.y - rect.y
+        sub      = scaled.subsurface(pygame.Rect(offset_x, offset_y, clipped.width, clipped.height))
+        screen.blit(sub, (clipped.x, clipped.y))
 
     player_hp_max = 100
     sans_hp_max   = 100
 
-    PHASE_DURATION = 5_000   # ms
+    PHASE_DURATION = 10_000   # ms
 
     speed      = 5
     gravity    = 0.7
@@ -44,55 +59,57 @@ def UnderTale_Fight():
 
     BONE_INTERVAL  = 380
     LASER_INTERVAL = 1100
-    PLAT_INTERVAL  = 1800
 
-    # ── Velocità ossa: ridotte rispetto all'originale ─────────────────
-    BONE_SPEED_V  = 7     # fase 1: era 10, ora 6
-    BONE_SPEED_V2 = 7     # fase 2 seconda osso: era 13, ora 8
-    BONE_SPEED_H  = 7
+    BONE_SPEED_V  = 7
+    BONE_SPEED_V2 = 7
     LASER_LIFE    = 1000  # ms
+
+    # ── Fase 3: tunnel di ossa ────────────────────────────────────────
+    TUNNEL_INTERVAL = 1400   # ms tra un muro e il successivo
+    TUNNEL_SPEED    = 10     # pixel/frame verso sinistra
+    TUNNEL_GAP      = 110    # ampiezza del buco (pixel)
+    BONE_THICKNESS  = 22     # larghezza di ogni osso del muro
 
     INV_TIME = 800
 
     # ── Stato interno ────────────────────────────────────────────────
-    bones     = []
-    lasers    = []
-    platforms = []
+    bones   = []
+    lasers  = []
+    tunnels = []
 
     state = {
-        "player_hp": player_hp_max,
-        "sans_hp":   sans_hp_max,
-        "phase":     1,
+        "player_hp":   player_hp_max,
+        "sans_hp":     sans_hp_max,
+        "phase":       1,
         "phase_timer": 0,
-        "y_vel":     0.0,
-        "on_ground": False,
-        "inv_timer": 0,
-        "bone_acc":  0,
-        "laser_acc": 0,
-        "plat_acc":  0,
-        "gravity_active": False,
+        "inv_timer":   0,
+        "bone_acc":    0,
+        "laser_acc":   0,
+        "tunnel_acc":  0,
     }
 
-    # ── Funzioni helper (dentro main) ─────────────────────────────────
+    # ── Helper: spawn di un muro tunnel ──────────────────────────────
+    def spawn_tunnel():
+        """Crea un muro a coppia di ossa verticali con gap casuale, parte da destra."""
+        gap_y = random.randint(arena.top + 10, arena.bottom - TUNNEL_GAP - 10)
+        x     = arena.right + BONE_THICKNESS + 5
+        top_h = gap_y - arena.top
+        bot_y = gap_y + TUNNEL_GAP
+        bot_h = arena.bottom - bot_y
+
+        wall = {
+            "x":   float(x),
+            "top": pygame.Rect(x, arena.top, BONE_THICKNESS, top_h),
+            "bot": pygame.Rect(x, bot_y,     BONE_THICKNESS, bot_h),
+        }
+        tunnels.append(wall)
+
+    # ── Funzioni helper ───────────────────────────────────────────────
     def reset_phase():
         bones.clear()
         lasers.clear()
-        platforms.clear()
+        tunnels.clear()
         player_rect.center = arena.center
-        state["y_vel"]     = 0.0
-        state["on_ground"] = False
-        state["gravity_active"] = False
-        if state["phase"] == 3:
-            # Spawna subito alcune ossa orizzontali come piattaforme
-            for y_offset in [-60, 0, 60]:
-                y = arena.centery + y_offset
-                dir = random.choice([-1, 1])
-                x = arena.left - 75 if dir == 1 else arena.right
-                bones.append({"rect": pygame.Rect(x, y, 75, 20),
-                              "spd": BONE_SPEED_H, "horiz": True, "dir": dir})
-            # Una sotto il giocatore per sicurezza
-            bones.append({"rect": pygame.Rect(arena.centerx - 37, arena.centery + 30, 75, 20),
-                          "spd": BONE_SPEED_H, "horiz": True, "dir": 1})
 
     def draw_hp_bar(x, y, w, h, current, maximum, color):
         pygame.draw.rect(screen, GRAY, (x, y, w, h))
@@ -108,24 +125,19 @@ def UnderTale_Fight():
         pygame.draw.rect(screen, WHITE, (bx, by + bh - fill_h, bw, fill_h))
         pygame.draw.rect(screen, WHITE, (bx, by, bw, bh), 2)
         lbl = font_small.render("SANS", True, WHITE)
-        screen.blit(lbl, (bx - 2, by - 22))
+        screen.blit(lbl, (bx - 9, by - 22))
         num = font_small.render(str(max(0, state["sans_hp"])), True, WHITE)
-        screen.blit(num, (bx + 2, by + bh + 5))
+        screen.blit(num, (bx - 1, by + bh + 5))
 
     def draw_ui():
-        phase_names = {1: "FASE 1 – OSSA", 2: "FASE 2 – OSSA + LASER", 3: "FASE 3 – SALTA!"}
-        lbl = font_med.render(phase_names[state["phase"]], True, CYAN)
-        screen.blit(lbl, (WIDTH // 2 - lbl.get_width() // 2, 8))
-
-        remaining = max(0, (PHASE_DURATION - state["phase_timer"]) // 1000)
-        tlbl = font_small.render(f"Tempo: {remaining}s", True, YELLOW)
-        screen.blit(tlbl, (WIDTH // 2 - tlbl.get_width() // 2, 38))
-
         screen.blit(font_small.render("HP:", True, WHITE), (30, 160))
         draw_hp_bar(60, 160, 180, 16, state["player_hp"], player_hp_max, RED)
         screen.blit(font_small.render(f"{max(0, state['player_hp'])}/{player_hp_max}", True, WHITE), (248, 158))
 
-        hint = "WASD / frecce per muoverti" if state["phase"] in (1, 2) else "A/D per muoverti  |  SPAZIO per saltare"
+        if state["phase"] == 3:
+            hint = "W/S  o  ↑ ↓  per muoverti nel tunnel"
+        else:
+            hint = "WASD / frecce per muoverti"
         ht = font_small.render(hint, True, GRAY)
         screen.blit(ht, (WIDTH // 2 - ht.get_width() // 2, HEIGHT - 26))
 
@@ -160,7 +172,7 @@ def UnderTale_Fight():
 
     # ── Game loop ────────────────────────────────────────────────────
     while True:
-        dt = clock.tick(60)
+        dt    = clock.tick(60)
         phase = state["phase"]
 
         for ev in pygame.event.get():
@@ -169,10 +181,6 @@ def UnderTale_Fight():
             if ev.type == pygame.KEYDOWN:
                 if ev.key == pygame.K_ESCAPE:
                     pygame.quit(); sys.exit()
-                if phase == 3 and ev.key in (pygame.K_SPACE, pygame.K_UP, pygame.K_w):
-                    if state["on_ground"]:
-                        state["y_vel"]     = jump_power
-                        state["on_ground"] = False
 
         keys = pygame.key.get_pressed()
 
@@ -184,124 +192,62 @@ def UnderTale_Fight():
             if keys[pygame.K_DOWN]  or keys[pygame.K_s]: player_rect.y += speed
             player_rect.clamp_ip(arena)
         else:
-            moving = keys[pygame.K_LEFT] or keys[pygame.K_a] or keys[pygame.K_RIGHT] or keys[pygame.K_d]
-            if moving:
-                state["gravity_active"] = True
-
-            if keys[pygame.K_LEFT]  or keys[pygame.K_a]: player_rect.x -= speed
-            if keys[pygame.K_RIGHT] or keys[pygame.K_d]: player_rect.x += speed
-
-            if state["gravity_active"]:
-                state["y_vel"] += gravity
-            else:
-                state["y_vel"] = 0.0
-            player_rect.y  += int(state["y_vel"])
-            player_rect.x   = max(arena.left, min(player_rect.x, arena.right - player_rect.width))
-
-            state["on_ground"] = False
-            if player_rect.bottom >= arena.bottom:
-                if phase == 3:
-                    state["player_hp"] = 0
-                else:
-                    player_rect.bottom = arena.bottom
-                    state["y_vel"]     = 0.0
-                    state["on_ground"] = True
-            if player_rect.top <= arena.top:
-                player_rect.top    = arena.top
-                state["y_vel"]     = 0.0
-
-            if state["y_vel"] >= 0:
-                for p in platforms:
-                    pr = p["rect"]
-                    if player_rect.colliderect(pr):
-                        prev_bottom = player_rect.bottom - int(state["y_vel"])
-                        if prev_bottom <= pr.top + 12:
-                            player_rect.bottom = pr.top
-                            state["y_vel"]     = 0.0
-                            state["on_ground"] = True
-
-                for b in bones:
-                    if not b["horiz"]:  # salta le ossa verticali
-                        continue
-                    br = b["rect"]
-                    if player_rect.colliderect(br):
-                        prev_bottom = player_rect.bottom - int(state["y_vel"])
-                        if prev_bottom <= br.top + 12:
-                            player_rect.bottom = br.top
-                            state["y_vel"]     = 0.0
-                            state["on_ground"] = True
+            # Fase 3: solo movimento verticale
+            if keys[pygame.K_UP]   or keys[pygame.K_w]: player_rect.y -= speed
+            if keys[pygame.K_DOWN] or keys[pygame.K_s]: player_rect.y += speed
+            player_rect.y      = max(arena.top, min(player_rect.y, arena.bottom - player_rect.height))
+            player_rect.centerx = arena.centerx
 
         # ── Timer fase ───────────────────────────────────────────────
         state["phase_timer"] += dt
         if state["phase_timer"] >= PHASE_DURATION:
             state["phase"]       += 1
             state["phase_timer"]  = 0
-            state["bone_acc"] = state["laser_acc"] = state["plat_acc"] = 0
+            state["bone_acc"] = state["laser_acc"] = state["tunnel_acc"] = 0
             state["sans_hp"] -= 33
             if state["phase"] > 3:
-                show_end_screen("* SANS E' STATO SCONFITTO!", CYAN)
+                show_end_screen("SANS E' STATO SCONFITTO!", CYAN)
                 UnderTale_Fight(); return
             reset_phase()
             continue
 
         state["inv_timer"] = max(0, state["inv_timer"] - dt)
-        phase = state["phase"]  # aggiorna dopo eventuale cambio fase
+        phase = state["phase"]
 
-        # ── Spawn ossa ───────────────────────────────────────────────
-        state["bone_acc"] += dt
-        if state["bone_acc"] >= BONE_INTERVAL:
-            state["bone_acc"] = 0
-            if phase in (1, 2):
+        # ── Spawn ossa (fase 1 e 2) ───────────────────────────────────
+        if phase in (1, 2):
+            state["bone_acc"] += dt
+            if state["bone_acc"] >= BONE_INTERVAL:
+                state["bone_acc"] = 0
                 x = random.randint(arena.left, arena.right - 20)
                 bones.append({"rect": pygame.Rect(x, arena.top - 75, 20, 75),
-                              "spd": BONE_SPEED_V, "horiz": False, "dir": 1})
+                               "spd": BONE_SPEED_V, "horiz": False, "dir": 1})
                 if phase == 2:
                     x2 = random.randint(arena.left, arena.right - 20)
-                    # Fase 2: seconda osso leggermente più veloce ma comunque ridotta
                     bones.append({"rect": pygame.Rect(x2, arena.top - 75, 20, 75),
                                   "spd": BONE_SPEED_V2, "horiz": False, "dir": 1})
-            else:
-                y   = random.randint(arena.top + 10, arena.bottom - 28)
-                dir = random.choice([-1, 1])
-                x   = arena.left - 75 if dir == 1 else arena.right
-                bones.append({"rect": pygame.Rect(x, y, 75, 20),
-                              "spd": BONE_SPEED_H, "horiz": True, "dir": dir})
 
-        # ── Spawn laser ──────────────────────────────────────────────
-        if phase >= 2:
+        # ── Spawn laser (fase 2) ──────────────────────────────────────
+        if phase == 2:
             state["laser_acc"] += dt
             if state["laser_acc"] >= LASER_INTERVAL:
                 state["laser_acc"] = 0
-                if phase == 3:
-                    x = random.randint(arena.left + 10, arena.right - 14)
-                    lasers.append({"rect": pygame.Rect(x, arena.top, 10, arena.height),
-                                   "life": LASER_LIFE})
-                else:
-                    y = random.randint(arena.top + 10, arena.bottom - 14)
-                    lasers.append({"rect": pygame.Rect(arena.left, y, arena.width, 10),
-                                   "life": LASER_LIFE})
+                y = random.randint(arena.top + 10, arena.bottom - 14)
+                lasers.append({"rect": pygame.Rect(arena.left, y, arena.width, 10),
+                                "life": LASER_LIFE})
 
-        # ── Spawn piattaforme fase 3 ─────────────────────────────────
+        # ── Spawn muri tunnel (fase 3) ────────────────────────────────
         if phase == 3:
-            state["plat_acc"] += dt
-            if state["plat_acc"] >= PLAT_INTERVAL:
-                state["plat_acc"] = 0
-                w   = random.randint(90, 170)
-                y   = random.randint(arena.top + 50, arena.bottom - 60)
-                dir = random.choice([-1, 1])
-                x   = arena.left if dir == 1 else arena.right - w
-                platforms.append({"rect": pygame.Rect(x, y, w, 14), "spd": 3, "dir": dir})
+            state["tunnel_acc"] += dt
+            if state["tunnel_acc"] >= TUNNEL_INTERVAL:
+                state["tunnel_acc"] = 0
+                spawn_tunnel()
 
         # ── Aggiorna ossa ────────────────────────────────────────────
         for b in bones[:]:
-            if b["horiz"]:
-                b["rect"].x += b["spd"] * b["dir"]
-                if b["rect"].left > arena.right + 20 or b["rect"].right < arena.left - 20:
-                    bones.remove(b)
-            else:
-                b["rect"].y += b["spd"]
-                if b["rect"].top > arena.bottom + 20:
-                    bones.remove(b)
+            b["rect"].y += b["spd"]
+            if b["rect"].top > arena.bottom + 20:
+                bones.remove(b)
 
         # ── Aggiorna laser ───────────────────────────────────────────
         for l in lasers[:]:
@@ -309,19 +255,27 @@ def UnderTale_Fight():
             if l["life"] <= 0:
                 lasers.remove(l)
 
-        # ── Aggiorna piattaforme ─────────────────────────────────────
-        for p in platforms:
-            p["rect"].x += p["spd"] * p["dir"]
-            if p["rect"].right > arena.right - 2: p["dir"] = -1
-            if p["rect"].left  < arena.left  + 2: p["dir"] =  1
+        # ── Aggiorna muri tunnel ──────────────────────────────────────
+        for w in tunnels[:]:
+            w["x"] -= TUNNEL_SPEED
+            w["top"].x = int(w["x"])
+            w["bot"].x = int(w["x"])
+            if w["top"].right < arena.left - 10:
+                tunnels.remove(w)
 
         # ── Danni ────────────────────────────────────────────────────
-        if phase != 3:
-            check_damage([b["rect"] for b in bones],  dmg=5)
-        check_damage([l["rect"] for l in lasers], dmg=10)
+        check_damage([b["rect"] for b in bones],  dmg=10)
+        check_damage([l["rect"] for l in lasers], dmg=20)
+
+        if phase == 3:
+            tunnel_rects = []
+            for w in tunnels:
+                tunnel_rects.append(w["top"])
+                tunnel_rects.append(w["bot"])
+            check_damage(tunnel_rects, dmg=10)
 
         if state["player_hp"] <= 0:
-            show_end_screen("* GAME OVER", RED)
+            show_end_screen("GAME OVER", RED)
             UnderTale_Fight(); return
 
         # ── Disegno ──────────────────────────────────────────────────
@@ -330,21 +284,14 @@ def UnderTale_Fight():
         pygame.draw.rect(screen, DKGRAY, arena)
         pygame.draw.rect(screen, WHITE,  arena, 3)
 
-        pygame.draw.rect(screen, WHITE, sans_rect)
-        slbl = font_small.render("SANS", True, BLACK)
-        screen.blit(slbl, (sans_rect.centerx - slbl.get_width() // 2,
-                            sans_rect.centery - slbl.get_height() // 2))
+        # Disegna Sans (immagine + label)
+        screen.blit(sans_img, sans)
 
-        for p in platforms:
-            clipped = p["rect"].clip(arena)
-            if clipped.width > 0:
-                pygame.draw.rect(screen, WHITE, clipped)
-
+        # Disegna ossa
         for b in bones:
-            clipped = b["rect"].clip(arena)
-            if clipped.width > 0 and clipped.height > 0:
-                pygame.draw.rect(screen, WHITE, clipped)
+            draw_bone(b["rect"], arena)
 
+        # Disegna laser
         for l in lasers:
             clipped = l["rect"].clip(arena)
             if clipped.width > 0:
@@ -354,13 +301,17 @@ def UnderTale_Fight():
                 else:
                     pygame.draw.rect(screen, CYAN, clipped)
 
+        # Disegna muri tunnel
+        for w in tunnels:
+            for bone_rect in (w["top"], w["bot"]):
+                draw_bone(bone_rect, arena)
+
+        # Disegna cuore
         show_heart = state["inv_timer"] <= 0 or (state["inv_timer"] // 80) % 2 == 0
         if show_heart:
             if phase == 3:
                 blue_img = player_img.copy()
-                # Prima azzera il canale rosso
                 blue_img.fill((0, 0, 0, 255), special_flags=pygame.BLEND_RGBA_MULT)
-                # Poi aggiungi il blu elettrico
                 blue_img.fill((0, 100, 255, 0), special_flags=pygame.BLEND_RGBA_ADD)
                 screen.blit(blue_img, player_rect)
             else:
