@@ -13,9 +13,12 @@ def main() -> None:
     uscita_gioco = font_grande.render("Vuoi uscire dal gioco?", True, "white")
     inizio = font_piccolo.render("Start", True, "white")
     impostazioni = font_piccolo.render("Impostazioni", True, "white")
+    uscita_menù = font_piccolo.render("Esci", True, "white")
     uscita_impostazioni = font_piccolo.render("Esci", True, "white")
     risposta_sì = font_piccolo.render("Si", True, "white")
     risposta_no = font_piccolo.render("No", True, "white")
+    volume = font_piccolo.render("Volume", True, "white")
+    salvataggio = font_piccolo.render("Salva", True, "white")
     
     # Questa è l'immagine dello sfondo.
     immagine_sfondo = pygame.image.load("sfondo_schermata.png")
@@ -32,30 +35,36 @@ def main() -> None:
         screen.blit(immagine_sfondo, (0, 0))
         # Schermata d'entrata
         if schermata == "menù":
-            screen.blit(titolo, (350, 150))
-            screen.blit(inizio, (500, 317))
-            screen.blit(impostazioni, (380, 417))
-            screen.blit(uscita_impostazioni, (525, 517))
+            screen.blit(titolo, (500, 150))
+            screen.blit(inizio, (585, 317))
+            screen.blit(impostazioni, (505, 417))
+            screen.blit(uscita_menù, (595, 517))
             
             # Questi sono i pulsanti del menù: la funzione 'get_rect' crea un rettangolo intorno alla scritta specificata con la sua variabile ( specifico anche il punto di partenza, cioè il topleft=(x, y)).
-            pulsante_inizio = inizio.get_rect(topleft=(500,317))
-            pulsante_impostazioni = impostazioni.get_rect(topleft=(380, 417))
-            pulsante_uscita_impostazioni = uscita_impostazioni.get_rect(topleft=(525, 517))
-            # Qua sono da aggiungere i pulsanti dell'inizio, delle impostazioni e dell'uscita.
+            pulsante_inizio = inizio.get_rect(topleft=(585,317))
+            pulsante_impostazioni = impostazioni.get_rect(topleft=(505, 417))
+            pulsante_uscita_menù = uscita_menù.get_rect(topleft=(595, 517))
             
         # Schermata d'uscita
         elif schermata == "uscita":
             screen.fill("black")
-            screen.blit(uscita_gioco, (120, 150))
+            screen.blit(uscita_gioco, (250, 150))
             screen.blit(risposta_sì, (500, 417))
             screen.blit(risposta_no, (650, 417))
             
-            # Questi sono i pulsanti della scgermata di uscita (spiego che cos'è 'get_rect' nella parte del menù).
+            # Questi sono i pulsanti della schermata di uscita (spiego che cos'è 'get_rect' nella parte del menù).
             pulsante_risposta_sì = risposta_sì.get_rect(topleft=(500, 417))
             pulsante_risposta_no = risposta_no.get_rect(topleft=(650, 417))
-            # Qua sono da aggiungere i pulsanti del sì e del no.
         
         elif schermata == "impostazioni":
+            screen.fill("black")
+            screen.blit(volume, (550, 200))
+            screen.blit(salvataggio, (570, 350))
+            screen.blit(uscita_impostazioni, (585, 500))
+            
+            pulsante_volume = volume.get_rect(topleft=(550, 200))
+            pulsante_salvataggio = salvataggio.get_rect(topleft=(570, 350))
+            pulsante_uscita_impostazioni = uscita_impostazioni.get_rect(topleft=(585, 500))
             # devo creare tutta la schermata per le impostazioni (volume, salvataggio e uscita).
         
         pygame.display.flip()
@@ -68,41 +77,49 @@ def main() -> None:
             if event.type == pygame.QUIT:
                 schermata = "uscita"
                 running = False
-            
+            # Questa parte riguarda le reazioni del gioco quando premi un tasto della tastiera (l'unico tasto è esc).
             if event.type == pygame.KEYDOWN:
                 
-                if schermata == "menù":
-                    if event.key == pygame.K_ESCAPE:
+                if event.key == pygame.K_ESCAPE:
+                    if schermata == "menù":
                         schermata = "uscita"
-                
-                        # Devo aggiungere i vari comandi per i diversi tipi di pulsanti della schermata (se premo quel determinato pulsante, il programma fa qualcosa).
-                
-                elif schermata == "uscita":
-                    if event.key == pygame.K_ESCAPE:
+                    
+                    elif schermata == "uscita" or schermata == "impostazioni":
                         schermata = "menù"
-#                   if event.type == pygame.MOUSEBUTTONDOWN:
-                        # Devo aggiungere i vari comandi per i diversi tipi di pulsanti della schermata (se premo quel determinato pulsante, il programma fa qualcosa).
-            
-            # In questa parte indico quello che succede quando premi i pulsanti. Non devo specificare con quale schermata mi trovo perché i suoi tasti specifici
-            # fanno parte solo di uno specifico stato dello schermo("menù", "impostazioni" e "uscita").
-            # Per esempio, non posso premere il tasto 'pulsante_risposta_sì' se ' schermata = menù ' perché non ne fa parte e quindi non esiste in quel momento.
+                    
+            # Qua sono programmate tutte le reazioni del gioco quando premi i pulsanti.        
             if event.type == pygame.MOUSEBUTTONDOWN:
-                
-#                 if pulsante_inizio.collidepoint(mPos):
-#                     # Qui inizia il gioco.
-#                 
-#                 elif pulsante_impostazioni.collidepoint(mPos):
-#                         schermata = "impostazioni"
-                
-                if pulsante_uscita_impostazioni.collidepoint(mPos):
-                    schermata = "uscita"
-                
-                elif pulsante_risposta_sì.collidepoint(mPos):
-                    running = False
-                
-                elif pulsante_risposta_no.collidepoint(mPos):
-                    schermata = "menù"
 
+                if schermata == "menù":
+                    
+#                     if pulsante_inizio.collidepoint(mPos):
+#                         qui inizia il gioco
+                    if pulsante_impostazioni.collidepoint(mPos):
+                        schermata = "impostazioni"
+
+                    elif pulsante_uscita_menù.collidepoint(mPos):
+                        schermata = "uscita"
+
+
+                elif schermata == "uscita":
+
+                    if pulsante_risposta_sì.collidepoint(mPos):
+                        running = False
+
+                    elif pulsante_risposta_no.collidepoint(mPos):
+                        schermata = "menù"
+                
+                elif schermata == "impostazioni":
+                    
+#                     if pulsante_volume.collidepoint(mPos):
+#                         qua c'è la parte del volume.
+                    
+#                     elif pulsante_salvataggio.collidepoint(mPos):
+#                         qua c'è la parte del salvataggio.
+                    
+                    if pulsante_uscita_impostazioni.collidepoint(mPos):
+                        schermata = "menù"
+    
     pygame.quit()
 
 if __name__ == "__main__":
