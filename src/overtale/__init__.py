@@ -1,9 +1,20 @@
 def main() -> None:
     import pygame
+    # È un modulo a parte con tutte le funzioni per salvare nel gioco
+    import salvataggi
     
     pygame.init()
+    
+    pygame.mixer.init()
+    pygame.mixer.music.load("musica_menù.mp3") 
+    pygame.mixer.music.play(- 1)
+    musica_attiva = True
+
     screen = pygame.display.set_mode((1280, 720))
     pygame.display.set_caption("OverTale")
+    
+    volume_musica = 1.00
+    pygame.mixer.music.set_volume(volume_musica) 
     
     font_grande = pygame.font.SysFont('Minecraft', 100)
     font_piccolo = pygame.font.SysFont('Minecraft', 67)
@@ -11,14 +22,28 @@ def main() -> None:
     # Questi sono tutti i titoli e le scritte (sono da finire).
     titolo = font_grande.render("OverTale", True, "white")
     uscita_gioco = font_grande.render("Vuoi uscire dal gioco?", True, "white")
+    regolazione_volume = font_grande.render("Calibra il volume:", True, "white")
+    attivazione_volume = font_grande.render("Musica:", True, "white")
+    meno_volume = font_grande.render("-", True, "white")
+    più_volume = font_grande.render("+", True, "white")
+    creazione_nuovo_salvataggio = font_grande.render("Crea nuovo salvataggio", True, "white")
+    selezione_salvataggi = font_grande.render("Seleziona salvataggio", True, "white")
+    conferma_salvataggio = font_grande.render("Vuoi creare un salvataggio?", True, "white")
+    salvataggi_disponibili = font_grande.render("Salvataggi esistenti:", True, "white")
+    
     inizio = font_piccolo.render("Start", True, "white")
     impostazioni = font_piccolo.render("Impostazioni", True, "white")
     uscita_menù = font_piccolo.render("Esci", True, "white")
     uscita_impostazioni = font_piccolo.render("Esci", True, "white")
+    uscita_volume = font_piccolo.render("Esci", True, "white")
     risposta_sì = font_piccolo.render("Si", True, "white")
     risposta_no = font_piccolo.render("No", True, "white")
     volume = font_piccolo.render("Volume", True, "white")
     salvataggio = font_piccolo.render("Salva", True, "white")
+    uscita_salvataggio = font_piccolo.render("Esci", True, "white")
+    risposta_sì_salvataggio = font_piccolo.render("Sì", True, "white")
+    risposta_no_salvataggio = font_piccolo.render("No", True, "white")
+    uscita_selezione_salvataggi = font_piccolo.render("Esci", True, "white")
     
     # Questa è l'immagine dello sfondo.
     immagine_sfondo = pygame.image.load("sfondo_schermata.png")
@@ -26,15 +51,26 @@ def main() -> None:
     clock = pygame.time.Clock()
     schermata = "menù"
     
+#    # Queste sono le variabili per il controllo del tempo del volume.
+#     tempo_click = 0
+#     ultimo_scorrimento = 0
+#     ritardo = 1000
+#     intervallo = 50
+    
     running = True
 
     while running:
-        # bisogna creare i pulsanti, lo start, il menù impostazioni (con i salvataggi, il volume, ecc.), la parte "esci" del menù (facile) e un modulo con la funzione per salvare il gioco.
-        mPos = pygame.mouse.get_pos() 
+        mPos = pygame.mouse.get_pos()
+#         # Questa è una funzione che indica quando il mouse viene tenuto premuto (lo [0] indica il tasto sinistro del mouse).
+#         mouse_premuto = pygame.mouse.get_pressed()[0]
+#         # Questa è una funzione che mi calcola quanto tempo, espresso in milliseondi (0,001 s), è passato dall'avvio di Pygame.
+#         tempo_attuale = pygame.time.get_ticks()
+        
 
-        screen.blit(immagine_sfondo, (0, 0))
+        screen.fill("black")
         # Schermata d'entrata
         if schermata == "menù":
+            screen.blit(immagine_sfondo, (0, 0))
             screen.blit(titolo, (500, 150))
             screen.blit(inizio, (585, 317))
             screen.blit(impostazioni, (505, 417))
@@ -47,17 +83,15 @@ def main() -> None:
             
         # Schermata d'uscita
         elif schermata == "uscita":
-            screen.fill("black")
             screen.blit(uscita_gioco, (250, 150))
-            screen.blit(risposta_sì, (500, 417))
-            screen.blit(risposta_no, (650, 417))
+            screen.blit(risposta_sì, (520, 417))
+            screen.blit(risposta_no, (670, 417))
             
             # Questi sono i pulsanti della schermata di uscita (spiego che cos'è 'get_rect' nella parte del menù).
-            pulsante_risposta_sì = risposta_sì.get_rect(topleft=(500, 417))
-            pulsante_risposta_no = risposta_no.get_rect(topleft=(650, 417))
+            pulsante_risposta_sì = risposta_sì.get_rect(topleft=(520, 417))
+            pulsante_risposta_no = risposta_no.get_rect(topleft=(670, 417))
         
         elif schermata == "impostazioni":
-            screen.fill("black")
             screen.blit(volume, (550, 200))
             screen.blit(salvataggio, (570, 350))
             screen.blit(uscita_impostazioni, (585, 500))
@@ -65,18 +99,99 @@ def main() -> None:
             pulsante_volume = volume.get_rect(topleft=(550, 200))
             pulsante_salvataggio = salvataggio.get_rect(topleft=(570, 350))
             pulsante_uscita_impostazioni = uscita_impostazioni.get_rect(topleft=(585, 500))
-            # devo creare tutta la schermata per le impostazioni (volume, salvataggio e uscita).
+            
+        elif schermata == "volume":
+            screen.blit(regolazione_volume, (200, 200))
+            screen.blit(meno_volume, (810, 200))
+            screen.blit(più_volume, (980, 200))
+            screen.blit(attivazione_volume, (200, 400))
+            screen.blit(uscita_volume, (585, 600))
+
+            quantità_volume = font_grande.render(f"{int(volume_musica * 100)}", True, "white")
+            
+            # Questa parte seve a creare le scritte per i pulsanti "ON" e "OFF" accanto alla scritta "Musica:".
+            # " musica_attiva" è una variabile che ho messo fuori dal ciclo e che è uguale a True. Se è uguale a True,
+            # il tasto ha scritto "ON", altimenti c'è scritto "OFF" (andare alla parte dei pulsanti su schermata ==
+            # "volume" per il continnuo).
+            if musica_attiva:
+                tasto_attivazione_musica = font_grande.render(f"ON", True, "white")
+                screen.blit(tasto_attivazione_musica, (475, 400))
+            
+            else:
+                tasto_attivazione_musica = font_grande.render(f"OFF", True, "white")
+                screen.blit(tasto_attivazione_musica, (475, 400))
+
+            # Questo pezzo serve per centrare il numero del volume sia quando è uguale a 100 che quando è un valore diverso.
+            if volume_musica == 1.00:
+                screen.blit(quantità_volume, (850, 200))
+            
+            else:
+                screen.blit(quantità_volume, (875, 200))
+            
+            pulsante_uscita_volume = uscita_volume.get_rect(topleft=(585, 600))
+            pulsante_meno_volume = meno_volume.get_rect(topleft=(810, 200))
+            pulsante_più_volume = più_volume.get_rect(topleft=(980, 200))
+            pulsante_tasto_attivazione_musica = tasto_attivazione_musica.get_rect(topleft=(475, 400))
+            
+#             if mouse_premuto and tempo_attuale - tempo_click > ritardo:
+#                 if tempo_attuale - ultimo_scorrimento > intervallo:
+# 
+#                     if pulsante_meno_volume.collidepoint(mPos):
+#                         volume_musica = max(0.0, round(volume_musica - 0.002, 3))
+#                         pygame.mixer.music.set_volume(volume_musica)
+# 
+#                     elif pulsante_più_volume.collidepoint(mPos):
+#                         volume_musica = min(1.0, round(volume_musica + 0.002, 3))
+#                         pygame.mixer.music.set_volume(volume_musica)
+# 
+#                     ultimo_scorrimento = tempo_attuale
+            
+            # da mettere tutto il resto.
+            
+        elif schermata == "salvataggio":
+            screen.blit(creazione_nuovo_salvataggio, (200, 225))
+            screen.blit(selezione_salvataggi, (200, 400))
+            screen.blit(uscita_salvataggio, (585, 600))
+            
+            pulsante_creazione_nuovo_salvataggio = creazione_nuovo_salvataggio.get_rect(topleft=(200, 225))
+            pulsante_selezione_salvataggi = selezione_salvataggi.get_rect(topleft=(200, 400))
+            pulsante_uscita_salvataggio = uscita_salvataggio.get_rect(topleft=(585, 600))
+        
+        elif schermata == "conferma salvataggio":
+            screen.blit(conferma_salvataggio, (175, 150))
+            screen.blit(risposta_sì_salvataggio, (520, 417))
+            screen.blit(risposta_no_salvataggio, (670, 417))
+            
+            pulsante_risposta_sì_salvataggio = risposta_sì_salvataggio.get_rect(topleft=(520, 417))
+            pulsante_risposta_no_salvataggio = risposta_no_salvataggio.get_rect(topleft=(670, 417))
+        
+        elif schermata == "selezione salvataggi":
+            screen.blit(salvataggi_disponibili, (300, 100))
+            screen.blit(uscita_selezione_salvataggi, (585, 600))
+            
+            pulsante_uscita_selezione_salvataggi = uscita_selezione_salvataggi.get_rect(topleft=(585, 600))
+            
+            salvataggi_esistenti = salvataggi.lista_salvataggi()
+            
+            pulsanti_salvataggi = []
+            
+            # enumerate è una funzione di Python che serve per scorrere sia gli elementi di una lista (nome) che i loro indici (i).
+            for i, nome in enumerate(salvataggi_esistenti):
+                txt = font_grande.render(nome, True, "white")
+                screen.blit(txt, (400, 200 + i*100))
+                pulsanti_salvataggi.append(txt.get_rect(topleft=(400, 200 + i*100)))
         
         pygame.display.flip()
         # Questa parte del programma serve per le varie schermate: quando il videogiocatore preme un determinato tasto,
         # la variabile 'schermata' cambia valore e, in base a esso, cambia la schermata.
         # Per esempio, se premo il tasto esc (pygame.K_ESCAPE) e schermata = "menù", allora schermata diventa "uscita".
         
+        
         for event in pygame.event.get():
-# Il running = False è da togliere alla fine di tutto.
+
             if event.type == pygame.QUIT:
-                schermata = "uscita"
                 running = False
+                
             # Questa parte riguarda le reazioni del gioco quando premi un tasto della tastiera (l'unico tasto è esc).
             if event.type == pygame.KEYDOWN:
                 
@@ -87,6 +202,11 @@ def main() -> None:
                     elif schermata == "uscita" or schermata == "impostazioni":
                         schermata = "menù"
                     
+                    elif schermata == "volume" or schermata == "salvataggio":
+                        schermata = "impostazioni"
+                    
+                    elif schermata == "conferma salvataggio" or schermata == "selezione salvataggi":
+                        schermata = "salvataggio"
             # Qua sono programmate tutte le reazioni del gioco quando premi i pulsanti.        
             if event.type == pygame.MOUSEBUTTONDOWN:
 
@@ -94,6 +214,7 @@ def main() -> None:
                     
 #                     if pulsante_inizio.collidepoint(mPos):
 #                         qui inizia il gioco
+                    
                     if pulsante_impostazioni.collidepoint(mPos):
                         schermata = "impostazioni"
 
@@ -111,20 +232,76 @@ def main() -> None:
                 
                 elif schermata == "impostazioni":
                     
-#                     if pulsante_volume.collidepoint(mPos):
-#                         qua c'è la parte del volume.
+                    if pulsante_volume.collidepoint(mPos):
+                        schermata = "volume"
                     
-#                     elif pulsante_salvataggio.collidepoint(mPos):
-#                         qua c'è la parte del salvataggio.
+                    elif pulsante_salvataggio.collidepoint(mPos):
+                        schermata = "salvataggio"
                     
-                    if pulsante_uscita_impostazioni.collidepoint(mPos):
+                    elif pulsante_uscita_impostazioni.collidepoint(mPos):
                         schermata = "menù"
+                
+                elif schermata == "volume":
+                    # I pulsanti per aumentare o diminuire il volume funzionano solo se musica_attiva = True.
+                    # Quando musica_attiva = False, questi non funzioneranno più perché la variabile "musica_
+                    # attiva" non è nel ciclo, quindi i due pulsanti dipendono solo dal valore esterno e fisso.
+                    
+                    if pulsante_meno_volume.collidepoint(mPos) and musica_attiva:
+                        volume_musica = max(0.0, volume_musica - 0.01)
+                        pygame.mixer.music.set_volume(volume_musica)
+                        
+                    elif pulsante_più_volume.collidepoint(mPos) and musica_attiva:
+                        volume_musica = min(1.0, volume_musica + 0.01)
+                        pygame.mixer.music.set_volume(volume_musica)
+                                        
+                    elif pulsante_uscita_volume.collidepoint(mPos):
+                        schermata = "impostazioni"
+                    
+                    elif pulsante_tasto_attivazione_musica.collidepoint(mPos):
+                        musica_attiva = not musica_attiva
+                        
+                        if musica_attiva:
+                            pygame.mixer.music.set_volume(volume_musica)
+                        else:
+                            pygame.mixer.music.set_volume(0.0)
+                
+                elif schermata == "salvataggio":
+                    
+                    if pulsante_creazione_nuovo_salvataggio.collidepoint(mPos):
+                        schermata = "conferma salvataggio"
+                    
+                    elif pulsante_selezione_salvataggi.collidepoint(mPos):
+                        schermata = "selezione salvataggi"
+                    
+                    elif pulsante_uscita_salvataggio.collidepoint(mPos):
+                        schermata = "impostazioni"
+                
+                elif schermata == "conferma salvataggio":
+                    # Quando premo ' Si ', il programma crea un percorso corrispondente al salvataggio appena fatto,
+                    # il quale avrà come nome 'Salvataggio' + la lunghezza della lista salvataggi sommata a 1.
+                    if pulsante_risposta_sì_salvataggio.collidepoint(mPos):
+                        nomi_esistenti = salvataggi.lista_salvataggi()
+                        nuovo_nome = f"Salvataggio{len(nomi_esistenti)+1}"
+                        salvataggi.crea_nuovo_salvataggio(nuovo_nome)
+                        
+                        schermata = "salvataggio"
+                    
+                    if pulsante_risposta_no_salvataggio.collidepoint(mPos):
+                        schermata = "salvataggio"
+                
+                elif schermata == "selezione salvataggi":
+                     for i, rett in enumerate(pulsanti_salvataggi):
+                        if rett.collidepoint(mPos):
+                            print(f"Hai selezionato il salvataggio: {salvataggi_esistenti[i]}")
+                            # Qui puoi aggiungere il caricamento dei dati
+                            schermata = "salvataggio"
+                    
+                     if pulsante_uscita_selezione_salvataggi.collidepoint(mPos):
+                         schermata = "salvataggio"
+
+#         clock.tick(60)
     
     pygame.quit()
 
 if __name__ == "__main__":
     main()
-
-
-# Per fare la funzione dei salvataggi, unisco il programma scritto da chatgpt con le funzione del modulo ' PlatformDirs ' (la funzione che devo usare mi crea automaticamente una cartella per i salvataggi dalla parte dell'utente).
-# Per l'audio e i salvataggi, creerò un modulo nella stessa cartella con le varie funzione per i salvataggi, per spegnere o accendere il volume e per calibrarlo.
