@@ -1,114 +1,88 @@
 import pygame
 import sys
-import sans_battle # Assicurati che il file si chiami esattamente così
+import sans_battle
 
-# INIZIALIZZAZIONE
+# --- IMPOSTAZIONE DEBUG ---
+MOSTRA_COLLISIONI = True # Cambia in False quando vuoi giocare normalmente
+
 pygame.init()
 WIDTH, HEIGHT = 900, 700
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Undertale Clone - Esplorazione")
+pygame.display.set_caption("Undertale Clone - Debug Collisioni")
 clock = pygame.time.Clock()
 
-SPRITE_SIZE = (64, 64)
-screen_rect = screen.get_rect()
-
-#FUNZIONE CARICAMENTO IMMAGINI
-def caricaescala(nome_file):
+# --- CARICAMENTO ASSET ---
+def carica_sprite(nome, colore_fallback):
     try:
-        img = pygame.image.load(nome_file).convert_alpha()
-        return pygame.transform.scale(img, SPRITE_SIZE)
+        img = pygame.image.load(nome).convert_alpha()
+        return pygame.transform.scale(img, (64, 64))
     except:
-        # Crea un rettangolo colorato se l'immagine manca (rosa di debug)
-        surf = pygame.Surface(SPRITE_SIZE)
-        surf.fill((255, 0, 255))
-        return surf
+        s = pygame.Surface((64, 64)); s.fill(colore_fallback); return s
 
-# Dizionario con immagini
+try:
+    mappa_img = pygame.image.load("mappa.png").convert()
+    mappa_img = pygame.transform.scale(mappa_img, (WIDTH, HEIGHT))
+except:
+    mappa_img = pygame.Surface((WIDTH, HEIGHT)); mappa_img.fill((34, 139, 34))
+
 sprites = {
-    "up":    caricaescala("cavalierid.png"),
-    "down":  caricaescala("cavalieri.png"),
-    "left":  caricaescala("cavalieris.png"),
-    "right": caricaescala("cavalieride.png")
+    "up": carica_sprite("cavalierid.png", (0, 255, 0)),
+    "down": carica_sprite("cavalieri.png", (255, 0, 0)),
+    "left": carica_sprite("cavalieris.png", (0, 0, 255)),
+    "right": carica_sprite("cavalieride.png", (255, 255, 0))
 }
 
+# --- LISTA OGGETTI CON COLLISIONI (Alberi) ---
+alberi = [
+    pygame.Rect(0, 0, 900, 60),            # Bosco superiore
+    pygame.Rect(0, 640, 900, 60),          # Bosco inferiore
+    pygame.Rect(220, 300, 30, 30),       # Cluster sinistra
+    pygame.Rect(300, 350, 20, 20),        # Albero centrale
+    pygame.Rect(620, 490, 20,20)        # Bosco Sans
+]
+
 current_dir = "down"
-player_rect = sprites[current_dir].get_rect(center=(200, 200))
+player_rect = sprites[current_dir].get_rect(center=(450, 350))
 vel = 5
+sans_vivo = True
+battle_zone = pygame.Rect(750, 200, 100, 100)
 
-# Variabili Stato e Trigger
-game_state = "MAP"
-battle_zone = pygame.Rect(500, 300, 150, 150) 
-
-#FUNZIONE TRANSIZIONE
-def transizione_al_nero():
-    fade = pygame.Surface((WIDTH, HEIGHT))
-    fade.fill((0, 0, 0))
-    for alpha in range(0, 255, 10):
-        fade.set_alpha(alpha)
-        # Continuiamo a disegnare la mappa sotto
-        screen.fill((40, 40, 40))
-        pygame.draw.rect(screen, (200, 0, 0), battle_zone, 2)
-        screen.blit(sprites[current_dir], player_rect)
-        
-        screen.blit(fade, (0, 0))
-        pygame.display.flip()
-        pygame.time.delay(10)
-
-# CICLO PRINCIPALE
 while True:
-    # 1. GESTIONE EVENTI
     for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
+        if event.type == pygame.QUIT: pygame.quit(); sys.exit()
 
-    # 2. LOGICA DI GIOCO (Mappa)
-    if game_state == "MAP":
-        keys = pygame.key.get_pressed()
-        muovendo = False # Per evitare che cambi direzione se non premi nulla
-        
-        if keys[pygame.K_LEFT]:
-            player_rect.x -= vel
-            current_dir = "left"
-            muovendo = True
-        elif keys[pygame.K_RIGHT]:
-            player_rect.x += vel
-            current_dir = "right"
-            muovendo = True
-        elif keys[pygame.K_UP]:
-            player_rect.y -= vel
-            current_dir = "up"
-            muovendo = True
-        elif keys[pygame.K_DOWN]:
-            player_rect.y += vel
-            current_dir = "down"
-            muovendo = True
+    # --- MOVIMENTO ---
+    keys = pygame.key.get_pressed()
+    vecchia_pos = player_rect.copy()
 
-        player_rect.clamp_ip(screen_rect)
+    if keys[pygame.K_LEFT]: player_rect.x -= vel; current_dir = "left"
+    elif keys[pygame.K_RIGHT]: player_rect.x += vel; current_dir = "right"
+    elif keys[pygame.K_UP]: player_rect.y -= vel; current_dir = "up"
+    elif keys[pygame.K_DOWN]: player_rect.y += vel; current_dir = "down"
 
-        # COLLISIONE: Se entri nella zona di Sans
-        if player_rect.colliderect(battle_zone):
-            transizione_al_nero()
-            
-            # Lancio del combattimento dal file esterno
-            risultato = sans_battle.UnderTale_Fight(screen, clock)
-            
-            # Al ritorno dalla battaglia
-            print(f"Battaglia conclusa con: {risultato}")
-            
-            # Resettiamo la posizione del player per non restare nel trigger
-            player_rect.x -= 100 
-            pygame.event.clear() # Pulisce i tasti rimasti premuti
+    # --- CONTROLLO COLLISIONI ---
+    for albero in alberi:
+        if player_rect.colliderect(albero):
+            player_rect = vecchia_pos
+            break
+    
+    player_rect.clamp_ip(screen.get_rect())
 
-    # 3. DISEGNO (RENDER)
-    screen.fill((40, 40, 40)) # Grigio mappa
+    # Trigger Sans
+    if sans_vivo and player_rect.colliderect(battle_zone):
+        risultato = sans_battle.UnderTale_Fight(screen, clock)
+        if risultato == "VITTORIA": sans_vivo = False
+        player_rect.x -= 100
 
-    if game_state == "MAP":
-        # Zona rossa trigger
-        pygame.draw.rect(screen, (200, 0, 0), battle_zone, 2) 
-        
-        # Disegna il cavaliere nella direzione corrente
-        screen.blit(sprites[current_dir], player_rect)
+    # DISEGNO
+    # 1. Disegna lo sfondo
+    screen.blit(mappa_img, (0, 0))
+
+    # 3. Disegna Sprite e Trigger
+    if sans_vivo:
+        pygame.draw.rect(screen, (255, 0, 0), battle_zone, 2) # Trigger Sans in ROSSO
+    
+    screen.blit(sprites[current_dir], player_rect)
 
     pygame.display.flip()
     clock.tick(60)
