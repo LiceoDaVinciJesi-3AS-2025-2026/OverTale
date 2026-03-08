@@ -1,73 +1,106 @@
 import pygame
 import sys
+import random # Aggiunto per eventuali calcoli casuali
 
 # INIZIALIZZAZIONE
 pygame.init()
 WIDTH, HEIGHT = 800, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Movimento Confinato e Scaling")
+pygame.display.set_caption("Movimento con Trigger Battaglia")
 clock = pygame.time.Clock()
 
-# Definiamo la dimensione desiderata per le immagini (es. 64x64 pixel)
 SPRITE_SIZE = (64, 64)
-
-# Creiamo un Rect che rappresenta l'area dello schermo per i confini
 screen_rect = screen.get_rect()
 
-# 2. CARICAMENTO E RIDIMENSIONAMENTO
+# --- NUOVE VARIABILI PER IL COMBATTIMENTO ---
+game_state = "MAP"  # Può essere "MAP" o "BATTLE"
+# Creiamo un'area rossa che attiva il combattimento
+battle_zone = pygame.Rect(500, 200, 150, 150) 
+# Font per scritte a schermo
+font = pygame.font.SysFont("Arial", 30)
+# --------------------------------------------
+
 def caricaescala(nome_file):
-    # Carica l'immagine, la scala alla dimensione scelta e ottimizza i pixel
-    img = pygame.image.load(nome_file).convert_alpha()
-    return pygame.transform.scale(img, SPRITE_SIZE)
+    try:
+        img = pygame.image.load(nome_file).convert_alpha()
+        return pygame.transform.scale(img, SPRITE_SIZE)
+    except:
+        # Crea un rettangolo colorato se l'immagine manca per testare il codice
+        surf = pygame.Surface(SPRITE_SIZE)
+        surf.fill((255, 0, 255))
+        return surf
 
-try:
-    sprites = {
-        "up":    caricaescala("cavalierid.png"),
-        "down":  caricaescala("cavalieri.png"),
-        "left":  caricaescala("cavalieris.png"),
-        "right": caricaescala("cavalieride.png")
-    }
-except pygame.error as e:
-    print(f"Errore nel caricamento: {e}")
-    pygame.quit()
-    sys.exit()
+sprites = {
+    "up":    caricaescala("cavalierid.png"),
+    "down":  caricaescala("cavalieri.png"),
+    "left":  caricaescala("cavalieris.png"),
+    "right": caricaescala("cavalieride.png")
+}
 
-# Stato iniziale
 current_dir = "down"
-# Il Rect ora avrà la dimensione esatta (64x64) definita in SPRITE_SIZE
 player_rect = sprites[current_dir].get_rect(center=screen_rect.center)
 vel = 5
 
-# 3. CICLO PRINCIPALE
+# CICLO PRINCIPALE
 while True:
-    screen.fill((40, 40, 40)) # Sfondo grigio
-
+    # 1. GESTIONE EVENTI
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
+        
+        # Se siamo in battaglia e premiamo ESC, torniamo alla mappa (esempio)
+        if game_state == "BATTLE" and event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                game_state = "MAP"
+                player_rect.x -= 70 # Sposta il player fuori dalla zona per non riattivarlo subito
 
-    # Movimento
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_LEFT]:
-        player_rect.x -= vel
-        current_dir = "left"
-    elif keys[pygame.K_RIGHT]:
-        player_rect.x += vel
-        current_dir = "right"
-    elif keys[pygame.K_UP]:
-        player_rect.y -= vel
-        current_dir = "up"
-    elif keys[pygame.K_DOWN]:
-        player_rect.y += vel
-        current_dir = "down"
+    # 2. LOGICA DI GIOCO
+    if game_state == "MAP":
+        # Movimento (Il tuo codice originale)
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_LEFT]:
+            player_rect.x -= vel
+            current_dir = "left"
+        elif keys[pygame.K_RIGHT]:
+            player_rect.x += vel
+            current_dir = "right"
+        elif keys[pygame.K_UP]:
+            player_rect.y -= vel
+            current_dir = "up"
+        elif keys[pygame.K_DOWN]:
+            player_rect.y += vel
+            current_dir = "down"
 
-    # Questa riga impedisce al giocatore di uscire dai limiti di schermo
-    
-    player_rect.clamp_ip(screen_rect)
+        player_rect.clamp_ip(screen_rect)
 
-    # Disegno
-    screen.blit(sprites[current_dir], player_rect)
+        # CONTROLLO COLLISIONE: Se il player tocca l'area di battaglia
+        if player_rect.colliderect(battle_zone):
+            game_state = "BATTLE"
+
+    # 3. DISEGNO (RENDER)
+    screen.fill((40, 40, 40)) 
+
+    if game_state == "MAP":
+        # Disegna la zona di attivazione (un quadrato rosso semi-trasparente)
+        pygame.draw.rect(screen, (200, 0, 0), battle_zone, 2) 
+        # Disegna il giocatore
+        screen.blit(sprites[current_dir], player_rect)
+        
+    elif game_state == "BATTLE":
+        # battaglia
+        screen.fill((0, 0, 0)) # Sfondo nero tipico di Undertale
+        
+        # Box di battaglia
+        battle_box = pygame.Rect(100, 350, 600, 200)
+        pygame.draw.rect(screen, (255, 255, 255), battle_box, 3)
+        
+        # Testo di esempio
+        battle_text = font.render("aaaaah sans ", True, (255, 255, 255))
+        screen.blit(battle_text, (130, 380))
+        
+        # Disegna il cuore (l'anima) al centro del box
+        pygame.draw.circle(screen, (255, 0, 0), (WIDTH//2, 450), 10)
 
     pygame.display.flip()
     clock.tick(60)
