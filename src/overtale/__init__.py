@@ -13,6 +13,7 @@ def main() -> None:
     screen = pygame.display.set_mode((1280, 720))
     pygame.display.set_caption("OverTale")
     
+    # È il volume di default del gioco
     volume_musica = 1.00
     pygame.mixer.music.set_volume(volume_musica) 
     
@@ -91,6 +92,7 @@ def main() -> None:
             pulsante_risposta_sì = risposta_sì.get_rect(topleft=(520, 417))
             pulsante_risposta_no = risposta_no.get_rect(topleft=(670, 417))
         
+        # Schermata delle impostazioni
         elif schermata == "impostazioni":
             screen.blit(volume, (550, 200))
             screen.blit(salvataggio, (570, 350))
@@ -100,19 +102,23 @@ def main() -> None:
             pulsante_salvataggio = salvataggio.get_rect(topleft=(570, 350))
             pulsante_uscita_impostazioni = uscita_impostazioni.get_rect(topleft=(585, 500))
             
+        # Schermata del volume
         elif schermata == "volume":
             screen.blit(regolazione_volume, (200, 200))
             screen.blit(meno_volume, (810, 200))
             screen.blit(più_volume, (980, 200))
             screen.blit(attivazione_volume, (200, 400))
             screen.blit(uscita_volume, (585, 600))
-
+            
+            # Creo nel ciclo la scritta del numero in modo che il gioco la cambi ogni volta che la modifica:
+            # quando premi sul - o il +, il programma modifica la variabile volume_musica, toglie la scritta
+            # del volume precedente e ci aggiunge quella nuova.
             quantità_volume = font_grande.render(f"{int(volume_musica * 100)}", True, "white")
             
             # Questa parte seve a creare le scritte per i pulsanti "ON" e "OFF" accanto alla scritta "Musica:".
             # " musica_attiva" è una variabile che ho messo fuori dal ciclo e che è uguale a True. Se è uguale a True,
             # il tasto ha scritto "ON", altimenti c'è scritto "OFF" (andare alla parte dei pulsanti su schermata ==
-            # "volume" per il continnuo).
+            # "volume" per il continuo).
             if musica_attiva:
                 tasto_attivazione_musica = font_grande.render(f"ON", True, "white")
                 screen.blit(tasto_attivazione_musica, (475, 400))
@@ -121,9 +127,12 @@ def main() -> None:
                 tasto_attivazione_musica = font_grande.render(f"OFF", True, "white")
                 screen.blit(tasto_attivazione_musica, (475, 400))
 
-            # Questo pezzo serve per centrare il numero del volume sia quando è uguale a 100 che quando è un valore diverso.
+            # Questo pezzo serve per centrare il numero del volume quando è composto da 1, 2 o 3 cifre.
             if volume_musica == 1.00:
                 screen.blit(quantità_volume, (850, 200))
+            
+            elif volume_musica >= 0 and volume_musica < 0.1:
+                screen.blit(quantità_volume, (890, 200))
             
             else:
                 screen.blit(quantità_volume, (875, 200))
@@ -147,7 +156,8 @@ def main() -> None:
 #                     ultimo_scorrimento = tempo_attuale
             
             # da mettere tutto il resto.
-            
+        
+        # Schermata delle opzioni di salvataggio
         elif schermata == "salvataggio":
             screen.blit(creazione_nuovo_salvataggio, (200, 225))
             screen.blit(selezione_salvataggi, (200, 400))
@@ -157,6 +167,7 @@ def main() -> None:
             pulsante_selezione_salvataggi = selezione_salvataggi.get_rect(topleft=(200, 400))
             pulsante_uscita_salvataggio = uscita_salvataggio.get_rect(topleft=(585, 600))
         
+        # Schermata della richiesta di conferma del salvataggio
         elif schermata == "conferma salvataggio":
             screen.blit(conferma_salvataggio, (175, 150))
             screen.blit(risposta_sì_salvataggio, (520, 417))
@@ -165,8 +176,9 @@ def main() -> None:
             pulsante_risposta_sì_salvataggio = risposta_sì_salvataggio.get_rect(topleft=(520, 417))
             pulsante_risposta_no_salvataggio = risposta_no_salvataggio.get_rect(topleft=(670, 417))
         
+        # Schermata della selezione del salvataggio
         elif schermata == "selezione salvataggi":
-            screen.blit(salvataggi_disponibili, (300, 100))
+            screen.blit(salvataggi_disponibili, (310, 100))
             screen.blit(uscita_selezione_salvataggi, (585, 600))
             
             pulsante_uscita_selezione_salvataggi = uscita_selezione_salvataggi.get_rect(topleft=(585, 600))
@@ -175,11 +187,25 @@ def main() -> None:
             
             pulsanti_salvataggi = []
             
-            # enumerate è una funzione di Python che serve per scorrere sia gli elementi di una lista (nome) che i loro indici (i).
-            for i, nome in enumerate(salvataggi_esistenti):
-                txt = font_grande.render(nome, True, "white")
-                screen.blit(txt, (400, 200 + i*100))
-                pulsanti_salvataggi.append(txt.get_rect(topleft=(400, 200 + i*100)))
+            # Queste sono le coordinate per la tabella coi 4 salvataggi
+            posizioni = [(300, 250), (700, 250), (300, 400), (700, 400)]
+                
+            for i in range(4):
+                
+                # if i < len(salvataggi_esistenti) vuol dire che controlla sei è già presente un salvataggio in quella posizione.
+                if i < len(salvataggi_esistenti):
+                    nome = salvataggi_esistenti[i]
+                else:
+                    nome = "Vuoto"
+
+                txt = font_piccolo.render(nome, True, "white")
+
+                x, y = posizioni[i]
+
+                screen.blit(txt, (x, y))
+
+                pulsanti_salvataggi.append(txt.get_rect(topleft=(x, y)))
+            
         
         pygame.display.flip()
         # Questa parte del programma serve per le varie schermate: quando il videogiocatore preme un determinato tasto,
@@ -244,7 +270,7 @@ def main() -> None:
                 elif schermata == "volume":
                     # I pulsanti per aumentare o diminuire il volume funzionano solo se musica_attiva = True.
                     # Quando musica_attiva = False, questi non funzioneranno più perché la variabile "musica_
-                    # attiva" non è nel ciclo, quindi i due pulsanti dipendono solo dal valore esterno e fisso.
+                    # attiva" non è nel ciclo, quindi i due pulsanti dipendono solo dal valore esterno (fisso).
                     
                     if pulsante_meno_volume.collidepoint(mPos) and musica_attiva:
                         volume_musica = max(0.0, volume_musica - 0.01)
@@ -281,23 +307,35 @@ def main() -> None:
                     # il quale avrà come nome 'Salvataggio' + la lunghezza della lista salvataggi sommata a 1.
                     if pulsante_risposta_sì_salvataggio.collidepoint(mPos):
                         nomi_esistenti = salvataggi.lista_salvataggi()
-                        nuovo_nome = f"Salvataggio{len(nomi_esistenti)+1}"
+
+                        # Hai 4 slot per i salvataggi (quando ne farai altri, li sovrascriverà al primo).
+                        if len(nomi_esistenti) < 4:
+                            nuovo_nome = f"Salvataggio{len(nomi_esistenti)+1}"
+                        else:
+                            nuovo_nome = nomi_esistenti[0]
+
                         salvataggi.crea_nuovo_salvataggio(nuovo_nome)
-                        
+
                         schermata = "salvataggio"
                     
                     if pulsante_risposta_no_salvataggio.collidepoint(mPos):
                         schermata = "salvataggio"
                 
                 elif schermata == "selezione salvataggi":
-                     for i, rett in enumerate(pulsanti_salvataggi):
+                    # La conferma del fatto che hai scelto un salvataggio la trovi sulla shell e non nel videogioco.
+                    # enumerate è una funzione di Python che serve per scorrere sia gli elementi di una lista (nome) che i loro indici (i).
+                    for i, rett in enumerate(pulsanti_salvataggi):
+
                         if rett.collidepoint(mPos):
-                            print(f"Hai selezionato il salvataggio: {salvataggi_esistenti[i]}")
-                            # Qui puoi aggiungere il caricamento dei dati
+
+                            if i < len(salvataggi_esistenti):
+                                print(f"Hai selezionato il salvataggio: {salvataggi_esistenti[i]}")
+
                             schermata = "salvataggio"
+
                     
-                     if pulsante_uscita_selezione_salvataggi.collidepoint(mPos):
-                         schermata = "salvataggio"
+                    if pulsante_uscita_selezione_salvataggi.collidepoint(mPos):
+                        schermata = "salvataggio"
 
 #         clock.tick(60)
     
