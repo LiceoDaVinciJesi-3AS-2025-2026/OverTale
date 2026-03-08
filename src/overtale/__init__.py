@@ -2,6 +2,8 @@ def main() -> None:
     import pygame
     # È un modulo a parte con tutte le funzioni per salvare nel gioco
     import salvataggi
+    # È un modulo a parte con tutte le funzione per lo svolgimento del gioco
+    import movimento
     
     pygame.init()
     
