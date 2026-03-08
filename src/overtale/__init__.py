@@ -16,13 +16,13 @@ def main() -> None:
     pygame.display.set_caption("OverTale")
     
     # È il volume di default del gioco
-    volume_musica = 1.00
+    volume_musica = 0.50
     pygame.mixer.music.set_volume(volume_musica) 
     
     font_grande = pygame.font.SysFont('Minecraft', 100)
     font_piccolo = pygame.font.SysFont('Minecraft', 67)
     
-    # Questi sono tutti i titoli e le scritte (sono da finire).
+    # Questi sono tutti i titoli e le scritte.
     titolo = font_grande.render("OverTale", True, "white")
     uscita_gioco = font_grande.render("Vuoi uscire dal gioco?", True, "white")
     regolazione_volume = font_grande.render("Calibra il volume:", True, "white")
@@ -61,8 +61,14 @@ def main() -> None:
 #     intervallo = 50
     
     running = True
+    gioco_effettivo = False
 
     while running:
+        
+        # Dopo che avrai vinto, il gioco ti chiederà di premere esc per uscire per ricominciare
+        if gioco_effettivo:
+            movimento.main(screen, clock, font_grande, font_piccolo)
+        
         mPos = pygame.mouse.get_pos()
 #         # Questa è una funzione che indica quando il mouse viene tenuto premuto (lo [0] indica il tasto sinistro del mouse).
 #         mouse_premuto = pygame.mouse.get_pressed()[0]
@@ -235,13 +241,18 @@ def main() -> None:
                     
                     elif schermata == "conferma salvataggio" or schermata == "selezione salvataggi":
                         schermata = "salvataggio"
+                    
+                    elif gioco_effettivo == True:
+                        gioco_effettivo = False
+                        schermata = "menù"
             # Qua sono programmate tutte le reazioni del gioco quando premi i pulsanti.        
             if event.type == pygame.MOUSEBUTTONDOWN:
 
                 if schermata == "menù":
                     
-#                     if pulsante_inizio.collidepoint(mPos):
-#                         qui inizia il gioco
+                    #  Qua inizia il gioco
+                    if pulsante_inizio.collidepoint(mPos):
+                        gioco_effettivo = True
                     
                     if pulsante_impostazioni.collidepoint(mPos):
                         schermata = "impostazioni"
