@@ -74,9 +74,19 @@ while True:
         if risultato == "VITTORIA": sans_vivo = False
         player_rect.x -= 100
 
+    sans_img=pygame.image.load("sans.png").convert()
+    larghezza_originale = sans_img.get_width()
+    altezza_originale = sans_img.get_height()
+    nuova_larghezza = larghezza_originale // 10
+    nuova_altezza = altezza_originale //10
+    
+    sans_finale = pygame.transform.scale(sans_img, (nuova_larghezza, nuova_altezza))
     # DISEGNO
+
     # 1. Disegna lo sfondo
     screen.blit(mappa_img, (0, 0))
+    #2. disegna sans
+    screen.blit(sans_finale, (700,200))
     
     screen.blit(sprites[current_dir], player_rect)
 
