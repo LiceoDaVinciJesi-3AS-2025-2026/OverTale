@@ -36,9 +36,9 @@ sprites = {
 alberi = [
     pygame.Rect(0, 0, 900, 60),            # Bosco superiore
     pygame.Rect(0, 640, 900, 60),          # Bosco inferiore
-    pygame.Rect(220, 300, 30, 30),       # Cluster sinistra
-    pygame.Rect(300, 350, 20, 20),        # Albero centrale
-    pygame.Rect(620, 490, 20,20)        # Bosco Sans
+    pygame.Rect(220, 240, 30, 50),       # Cluster sinistra
+    pygame.Rect(300, 280, 20, 50),        # Albero centrale
+    pygame.Rect(620, 420, 20,50)        # Bosco Sans
 ]
 
 current_dir = "down"

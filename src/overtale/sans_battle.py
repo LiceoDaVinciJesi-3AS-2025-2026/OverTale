@@ -32,7 +32,7 @@ def UnderTale_Fight(screen, clock):
 
     # --- VARIABILI DI STATO ---
     player_hp_max, sans_hp_max = 100, 100
-    PHASE_DURATION = 10000
+    PHASE_DURATION = 5000
     speed, gravity, jump_power = 5, 0.7, -13
     BONE_INTERVAL, LASER_INTERVAL, LASER_LIFE = 380, 1100, 1000
     TUNNEL_INTERVAL, TUNNEL_SPEED, TUNNEL_GAP, BONE_THICKNESS = 1400, 10, 110, 22
@@ -84,20 +84,10 @@ def UnderTale_Fight(screen, clock):
         screen.blit(num, (bx - 1, by + bh + 5))
 
     def draw_ui():
-        # Disegna la scritta HP e la barra
-        screen.blit(font_small.render("HP:", True, WHITE), (30, 160))
+        screen.blit(font_small.render("HP:", True, WHITE), (30, 157))
         draw_hp_bar(60, 160, 180, 16, state["player_hp"], player_hp_max, RED)
         screen.blit(font_small.render(f"{max(0, state['player_hp'])}/{player_hp_max}", True, WHITE), (248, 158))
-        
 
-        # Calcoliamo i millisecondi rimanenti
-        tempo_rimanente_ms = PHASE_DURATION - state["phase_timer"]
-        # Convertiamo in secondi
-        secondi_rimanenti = max(0, tempo_rimanente_ms / 1000)
-        
-        # -------------------------------------
-
-        # Suggerimenti di movimento in basso
         hint = "W/S o ↑ ↓ per muoverti" if state["phase"] == 3 else "WASD / frecce per muoverti"
         ht = font_small.render(hint, True, GRAY)
         screen.blit(ht, (WIDTH // 2 - ht.get_width() // 2, HEIGHT - 26))
@@ -110,6 +100,52 @@ def UnderTale_Fight(screen, clock):
                 state["inv_timer"] = INV_TIME
                 return
 
+    def show_victory_screen():
+        # Fade to black
+        fade_surf = pygame.Surface((WIDTH, HEIGHT))
+        fade_surf.fill(BLACK)
+        for alpha in range(0, 256, 4):
+            screen.fill(BLACK)
+            fade_surf.set_alpha(alpha)
+            screen.blit(fade_surf, (0, 0))
+            pygame.display.flip()
+            clock.tick(60)
+
+        # Schermata vittoria
+        start_ticks = pygame.time.get_ticks()
+        while True:
+            clock.tick(60)
+            for ev in pygame.event.get():
+                if ev.type == pygame.QUIT:
+                    pygame.quit(); sys.exit()
+                if ev.type == pygame.KEYDOWN:
+                    return
+
+            t = pygame.time.get_ticks() - start_ticks
+            screen.fill(BLACK)
+
+            # Titolo lampeggiante giallo
+            if (t // 500) % 2 == 0:
+                title = font_big.render("YOU WON!", True, WHITE)
+                screen.blit(title, (WIDTH // 2 - title.get_width() // 2, HEIGHT // 2 - 90))
+
+            # Messaggio principale
+            msg = font_med.render("Hai sconfitto Sans!", True, WHITE)
+            screen.blit(msg, (WIDTH // 2 - msg.get_width() // 2, HEIGHT // 2 - 15))
+
+            # HP rimasti
+            hp_color = (0, 220, 80) if state["player_hp"] > 50 else RED
+            hp_txt = font_small.render(
+                f"HP rimasti: {max(0, state['player_hp'])} / {player_hp_max}", True, hp_color
+            )
+            screen.blit(hp_txt, (WIDTH // 2 - hp_txt.get_width() // 2, HEIGHT // 2 + 35))
+
+            # Prompt fisso
+            cont = font_small.render("Premi un tasto per continuare", True, GRAY)
+            screen.blit(cont, (WIDTH // 2 - cont.get_width() // 2, HEIGHT // 2 + 90))
+
+            pygame.display.flip()
+            
     # --- GAME LOOP ---
     while True:
         dt = clock.tick(60)
@@ -139,7 +175,9 @@ def UnderTale_Fight(screen, clock):
         if state["phase_timer"] >= PHASE_DURATION:
             state["phase"] += 1; state["phase_timer"] = 0
             state["sans_hp"] -= 33
-            if state["phase"] > 3: return "VITTORIA"
+            if state["phase"] > 3:
+                show_victory_screen()   # <-- schermata vittoria
+                return "VITTORIA"
             reset_phase(); continue
 
         state["inv_timer"] = max(0, state["inv_timer"] - dt)
@@ -150,7 +188,7 @@ def UnderTale_Fight(screen, clock):
             if state["bone_acc"] >= BONE_INTERVAL:
                 state["bone_acc"] = 0
                 x = random.randint(arena.left, arena.right - 20)
-                bones.append({"rect": pygame.Rect(x, arena.top - 75, 20, 75), "spd": 7})
+                bones.append({"rect": pygame.Rect(x, arena.top - 75, 20, 75), "spd": 9})
             
             if state["phase"] == 2:
                 state["laser_acc"] += dt
@@ -182,7 +220,7 @@ def UnderTale_Fight(screen, clock):
         if state["phase"] == 3:
             t_rects = []
             for w in tunnels: t_rects.extend([w["top"], w["bot"]])
-            check_damage(t_rects, 10)
+            check_damage(t_rects, 15)
 
         if state["player_hp"] <= 0: return "MORTE"
 
@@ -196,7 +234,7 @@ def UnderTale_Fight(screen, clock):
         for l in lasers:
             clipped = l["rect"].clip(arena)
             if clipped.width > 0:
-                color = YELLOW if l["life"] > 700 and (l["life"] // 80) % 2 == 0 else RED
+                color = YELLOW if l["life"] > 700 and (l["life"] // 80) % 2 == 0 else CYAN
                 if l["life"] <= 700: pygame.draw.rect(screen, color, clipped)
                 else: pygame.draw.rect(screen, color, clipped, 1)
 
@@ -206,9 +244,8 @@ def UnderTale_Fight(screen, clock):
         if state["inv_timer"] <= 0 or (state["inv_timer"] // 80) % 2 == 0:
             if state["phase"] == 3:
                 blue_img = player_img.copy()
-                # Azzera il canale rosso, poi applica il blu
-                blue_img.fill((0, 0, 0, 255), special_flags=pygame.BLEND_RGBA_MULT)  # azzera tutto preservando alpha
-                blue_img.fill((0, 100, 255, 0), special_flags=pygame.BLEND_RGBA_ADD)  # aggiunge blu elettrico
+                blue_img.fill((0, 0, 0, 255), special_flags=pygame.BLEND_RGBA_MULT)
+                blue_img.fill((0, 100, 255, 0), special_flags=pygame.BLEND_RGBA_ADD)
                 screen.blit(blue_img, player_rect)
             else:
                 screen.blit(player_img, player_rect)
