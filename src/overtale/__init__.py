@@ -7,17 +7,32 @@ def main() -> None:
     
     pygame.init()
     
-    pygame.mixer.init()
-    pygame.mixer.music.load("musica_menù.mp3") 
-    pygame.mixer.music.play(- 1)
     musica_attiva = True
+    volume_musica = 0.50
+    
+    try:
+        pygame.mixer.init()
+        pygame.mixer.music.load("musica_menù.mp3")
+        pygame.mixer.music.play(-1)
+        
+#         volume_musica = 0.50
+        pygame.mixer.music.set_volume(volume_musica) 
+    
+    except pygame.error:
+        musica_attiva = False
+        print("Audio non disponibile")
+    
+#     pygame.mixer.init()
+#     pygame.mixer.music.load("musica_menù.mp3") 
+#     pygame.mixer.music.play(- 1)
+#     musica_attiva = True
 
     screen = pygame.display.set_mode((1280, 720))
     pygame.display.set_caption("OverTale")
     
     # È il volume di default del gioco
-    volume_musica = 0.50
-    pygame.mixer.music.set_volume(volume_musica) 
+#     volume_musica = 0.50
+#     pygame.mixer.music.set_volume(volume_musica) 
     
     font_grande = pygame.font.SysFont('Minecraft', 100)
     font_piccolo = pygame.font.SysFont('Minecraft', 67)
@@ -29,8 +44,8 @@ def main() -> None:
     attivazione_volume = font_grande.render("Musica:", True, "white")
     meno_volume = font_grande.render("-", True, "white")
     più_volume = font_grande.render("+", True, "white")
-    creazione_nuovo_salvataggio = font_grande.render("Crea nuovo salvataggio", True, "white")
-    selezione_salvataggi = font_grande.render("Seleziona salvataggio", True, "white")
+#     creazione_nuovo_salvataggio = font_piccolo.render("Crea nuovo salvataggio", True, "white")
+#     selezione_salvataggi = font_piccolo.render("Seleziona salvataggio", True, "white")
     conferma_salvataggio = font_grande.render("Vuoi creare un salvataggio?", True, "white")
     salvataggi_disponibili = font_grande.render("Salvataggi esistenti:", True, "white")
     
@@ -43,8 +58,10 @@ def main() -> None:
     risposta_no = font_piccolo.render("No", True, "white")
     volume = font_piccolo.render("Volume", True, "white")
     salvataggio = font_piccolo.render("Salva", True, "white")
+    creazione_nuovo_salvataggio = font_piccolo.render("Crea nuovo salvataggio", True, "white")
+    selezione_salvataggi = font_piccolo.render("Seleziona salvataggio", True, "white")
     uscita_salvataggio = font_piccolo.render("Esci", True, "white")
-    risposta_sì_salvataggio = font_piccolo.render("Sì", True, "white")
+    risposta_sì_salvataggio = font_piccolo.render("Si", True, "white")
     risposta_no_salvataggio = font_piccolo.render("No", True, "white")
     uscita_selezione_salvataggi = font_piccolo.render("Esci", True, "white")
     
@@ -61,13 +78,13 @@ def main() -> None:
 #     intervallo = 50
     
     running = True
-    gioco_effettivo = False
+#     gioco_effettivo = False
 
     while running:
         
         # Dopo che avrai vinto, il gioco ti chiederà di premere esc per uscire per ricominciare
-        if gioco_effettivo:
-            movimento.main(screen, clock, font_grande, font_piccolo)
+#         if schermata == "gioco":
+#             movimento.main(screen, clock, font_grande, font_piccolo)
         
         mPos = pygame.mouse.get_pos()
 #         # Questa è una funzione che indica quando il mouse viene tenuto premuto (lo [0] indica il tasto sinistro del mouse).
@@ -78,21 +95,28 @@ def main() -> None:
 
         screen.fill("black")
         # Schermata d'entrata
-        if schermata == "menù":
+        
+        # Dopo che avrai vinto, il gioco ti chiederà di premere esc per uscire per ricominciare
+        if schermata == "gioco":
+            movimento.main()
+            schermata = "menù"
+            continue
+        
+        elif schermata == "menù":
             screen.blit(immagine_sfondo, (0, 0))
-            screen.blit(titolo, (500, 150))
+            screen.blit(titolo, (450, 150))
             screen.blit(inizio, (585, 317))
-            screen.blit(impostazioni, (505, 417))
+            screen.blit(impostazioni, (455, 417))
             screen.blit(uscita_menù, (595, 517))
             
             # Questi sono i pulsanti del menù: la funzione 'get_rect' crea un rettangolo intorno alla scritta specificata con la sua variabile ( specifico anche il punto di partenza, cioè il topleft=(x, y)).
             pulsante_inizio = inizio.get_rect(topleft=(585,317))
-            pulsante_impostazioni = impostazioni.get_rect(topleft=(505, 417))
+            pulsante_impostazioni = impostazioni.get_rect(topleft=(455, 417))
             pulsante_uscita_menù = uscita_menù.get_rect(topleft=(595, 517))
             
         # Schermata d'uscita
         elif schermata == "uscita":
-            screen.blit(uscita_gioco, (250, 150))
+            screen.blit(uscita_gioco, (160, 150))
             screen.blit(risposta_sì, (520, 417))
             screen.blit(risposta_no, (670, 417))
             
@@ -242,9 +266,9 @@ def main() -> None:
                     elif schermata == "conferma salvataggio" or schermata == "selezione salvataggi":
                         schermata = "salvataggio"
                     
-                    elif gioco_effettivo == True:
-                        gioco_effettivo = False
+                    elif schermata == "gioco":
                         schermata = "menù"
+                    
             # Qua sono programmate tutte le reazioni del gioco quando premi i pulsanti.        
             if event.type == pygame.MOUSEBUTTONDOWN:
 
@@ -252,7 +276,7 @@ def main() -> None:
                     
                     #  Qua inizia il gioco
                     if pulsante_inizio.collidepoint(mPos):
-                        gioco_effettivo = True
+                        schermata = "gioco"
                     
                     if pulsante_impostazioni.collidepoint(mPos):
                         schermata = "impostazioni"
@@ -350,7 +374,7 @@ def main() -> None:
                     if pulsante_uscita_selezione_salvataggi.collidepoint(mPos):
                         schermata = "salvataggio"
 
-#         clock.tick(60)
+        clock.tick(60)
     
     pygame.quit()
 
