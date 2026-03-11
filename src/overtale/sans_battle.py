@@ -92,13 +92,9 @@ def UnderTale_Fight(screen, clock):
 
         # Calcoliamo i millisecondi rimanenti
         tempo_rimanente_ms = PHASE_DURATION - state["phase_timer"]
-        # Convertiamo in secondi (es. 10.5)
+        # Convertiamo in secondi
         secondi_rimanenti = max(0, tempo_rimanente_ms / 1000)
         
-        # Creiamo la scritta del timer
-        testo_timer = font_med.render(f"PROSSIMA FASE TRA: {secondi_rimanenti:.1f}s", True, YELLOW)
-        # Lo posizioniamo sopra l'arena (al centro)
-        screen.blit(testo_timer, (WIDTH // 2 - testo_timer.get_width() // 2, 170))
         # -------------------------------------
 
         # Suggerimenti di movimento in basso
