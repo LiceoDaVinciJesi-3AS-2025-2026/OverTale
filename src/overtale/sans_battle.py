@@ -92,13 +92,9 @@ def UnderTale_Fight(screen, clock):
 
         # Calcoliamo i millisecondi rimanenti
         tempo_rimanente_ms = PHASE_DURATION - state["phase_timer"]
-        # Convertiamo in secondi (es. 10.5)
+        # Convertiamo in secondi
         secondi_rimanenti = max(0, tempo_rimanente_ms / 1000)
         
-        # Creiamo la scritta del timer
-        testo_timer = font_med.render(f"PROSSIMA FASE TRA: {secondi_rimanenti:.1f}s", True, YELLOW)
-        # Lo posizioniamo sopra l'arena (al centro)
-        screen.blit(testo_timer, (WIDTH // 2 - testo_timer.get_width() // 2, 170))
         # -------------------------------------
 
         # Suggerimenti di movimento in basso
@@ -210,7 +206,9 @@ def UnderTale_Fight(screen, clock):
         if state["inv_timer"] <= 0 or (state["inv_timer"] // 80) % 2 == 0:
             if state["phase"] == 3:
                 blue_img = player_img.copy()
-                blue_img.fill((0, 100, 255, 255), special_flags=pygame.BLEND_ADD)
+                # Azzera il canale rosso, poi applica il blu
+                blue_img.fill((0, 0, 0, 255), special_flags=pygame.BLEND_RGBA_MULT)  # azzera tutto preservando alpha
+                blue_img.fill((0, 100, 255, 0), special_flags=pygame.BLEND_RGBA_ADD)  # aggiunge blu elettrico
                 screen.blit(blue_img, player_rect)
             else:
                 screen.blit(player_img, player_rect)
