@@ -210,7 +210,9 @@ def UnderTale_Fight(screen, clock):
         if state["inv_timer"] <= 0 or (state["inv_timer"] // 80) % 2 == 0:
             if state["phase"] == 3:
                 blue_img = player_img.copy()
-                blue_img.fill((0, 100, 255, 255), special_flags=pygame.BLEND_ADD)
+                # Azzera il canale rosso, poi applica il blu
+                blue_img.fill((0, 0, 0, 255), special_flags=pygame.BLEND_RGBA_MULT)  # azzera tutto preservando alpha
+                blue_img.fill((0, 100, 255, 0), special_flags=pygame.BLEND_RGBA_ADD)  # aggiunge blu elettrico
                 screen.blit(blue_img, player_rect)
             else:
                 screen.blit(player_img, player_rect)
