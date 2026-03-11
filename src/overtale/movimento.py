@@ -74,11 +74,11 @@ while True:
         if risultato == "VITTORIA": sans_vivo = False
         player_rect.x -= 100
 
-    sans_img=pygame.image.load("sansmappa.jpg").convert_alpha()
+    sans_img=pygame.image.load("sans.png").convert()
     larghezza_originale = sans_img.get_width()
     altezza_originale = sans_img.get_height()
-    nuova_larghezza = larghezza_originale // 2
-    nuova_altezza = altezza_originale //2
+    nuova_larghezza = larghezza_originale // 10
+    nuova_altezza = altezza_originale //10
     
     sans_finale = pygame.transform.scale(sans_img, (nuova_larghezza, nuova_altezza))
     # DISEGNO
