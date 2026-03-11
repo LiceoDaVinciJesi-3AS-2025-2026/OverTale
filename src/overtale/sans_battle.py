@@ -200,7 +200,7 @@ def UnderTale_Fight(screen, clock):
         for l in lasers:
             clipped = l["rect"].clip(arena)
             if clipped.width > 0:
-                color = YELLOW if l["life"] > 700 and (l["life"] // 80) % 2 == 0 else RED
+                color = YELLOW if l["life"] > 700 and (l["life"] // 80) % 2 == 0 else CYAN
                 if l["life"] <= 700: pygame.draw.rect(screen, color, clipped)
                 else: pygame.draw.rect(screen, color, clipped, 1)
 
