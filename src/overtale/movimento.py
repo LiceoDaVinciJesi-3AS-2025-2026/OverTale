@@ -74,7 +74,6 @@ while True:
         if risultato == "VITTORIA": sans_vivo = False
         player_rect.x -= 100
 
-<<<<<<< HEAD
     sans_img=pygame.image.load("sans.png").convert()
     larghezza_originale = sans_img.get_width()
     altezza_originale = sans_img.get_height()
@@ -82,8 +81,7 @@ while True:
     nuova_altezza = altezza_originale //10
     
     sans_finale = pygame.transform.scale(sans_img, (nuova_larghezza, nuova_altezza))
-=======
->>>>>>> parent of e1894b1 (Merge branch 'main' of https://github.com/LiceoDaVinciJesi-3AS-2025-2026/OverTale)
+    
     # DISEGNO
     # 1. Disegna lo sfondo
     screen.blit(mappa_img, (0, 0))
