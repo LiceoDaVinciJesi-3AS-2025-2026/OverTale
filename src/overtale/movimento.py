@@ -81,12 +81,21 @@ while True:
     nuova_altezza = altezza_originale //10
     
     sans_finale = pygame.transform.scale(sans_img, (nuova_larghezza, nuova_altezza))
-    
+    #cespugli & sans
+    cespuglio_img = pygame.image.load("cespuglio.png").convert_alpha()
+    cespuglio_img = pygame.transform.scale(cespuglio_img, (90, 90))
+    sans_img=pygame.image.load("sansi.png").convert_alpha()
+    sans_img=pygame.transform.scale(sans_img, (70, 98))
     # DISEGNO
     # 1. Disegna lo sfondo
     screen.blit(mappa_img, (0, 0))
     
     screen.blit(sprites[current_dir], player_rect)
+    # 2. disegna sans
+    screen.blit(sans_img, (770, 200))
+    # 3. disegna i cespugli
+    screen.blit(cespuglio_img, (800, 220))
+    screen.blit(cespuglio_img, (730, 220))
 
     pygame.display.flip()
     clock.tick(60)
