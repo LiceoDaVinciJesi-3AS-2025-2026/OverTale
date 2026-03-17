@@ -25,7 +25,7 @@ def main() -> None:
     volume_musica = 0.50
     
     if audio_disponibile:
-        pygame.mixer.music.set_volume(volume_musica) 
+        pygame.mixer.music.set_volume(volume_musica)
     
     font_grande = pygame.font.SysFont('Minecraft', 100)
     font_piccolo = pygame.font.SysFont('Minecraft', 67)
