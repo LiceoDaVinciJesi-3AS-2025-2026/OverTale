@@ -92,7 +92,7 @@ while True:
     
     screen.blit(sprites[current_dir], player_rect)
     # 2. disegna sans
-    screen.blit(sans_img, (777, 203))
+    screen.blit(sans_img, (770, 200))
     # 3. disegna i cespugli
     screen.blit(cespuglio_img, (800, 220))
     screen.blit(cespuglio_img, (730, 220))
