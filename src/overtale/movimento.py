@@ -42,7 +42,7 @@ def main(screen, clock, font_grande, font_piccolo):
         
         # Alberi sparsi sulla mappa
         pygame.Rect(220, 260, 120, 70),
-        pygame.Rect(430, 460, 40, 50),
+        pygame.Rect(270, 480, 40, 60),
         pygame.Rect(610, 420, 40, 60),
         pygame.Rect(110, 380, 40, 50)
     ]
