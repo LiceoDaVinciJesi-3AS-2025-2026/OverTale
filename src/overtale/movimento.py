@@ -2,6 +2,12 @@ import pygame
 import sys
 import sans_battle
 
+#cespugli & sans
+cespuglio_img = pygame.image.load("cespuglio.png").convert_alpha()
+cespuglio_img = pygame.transform.scale(cespuglio_img, (90, 90))
+sans_img=pygame.image.load("sansi.png").convert_alpha()
+sans_img=pygame.transform.scale(sans_img, (70, 98))
+
 def main(screen, clock, font_grande, font_piccolo):
     
     # --- IMPOSTAZIONE DEBUG ---
@@ -111,11 +117,7 @@ def main(screen, clock, font_grande, font_piccolo):
     nuova_altezza = altezza_originale //10
     
     sans_finale = pygame.transform.scale(sans_img, (nuova_larghezza, nuova_altezza))
-    #cespugli & sans
-    cespuglio_img = pygame.image.load("cespuglio.png").convert_alpha()
-    cespuglio_img = pygame.transform.scale(cespuglio_img, (90, 90))
-    sans_img=pygame.image.load("sansi.png").convert_alpha()
-    sans_img=pygame.transform.scale(sans_img, (70, 98))
+    
     # DISEGNO
     # 1. Disegna lo sfondo
     screen.blit(mappa_img, (0, 0))
