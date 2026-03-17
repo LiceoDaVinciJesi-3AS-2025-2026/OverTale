@@ -32,7 +32,7 @@ def UnderTale_Fight(screen, clock):
 
     # --- VARIABILI DI STATO ---
     player_hp_max, sans_hp_max = 100, 100
-    PHASE_DURATION = 20000
+    PHASE_DURATION = 12000
     speed, gravity, jump_power = 5, 0.7, -13
     BONE_INTERVAL, LASER_INTERVAL, LASER_LIFE = 380, 1100, 1000
     TUNNEL_INTERVAL, TUNNEL_SPEED, TUNNEL_GAP, BONE_THICKNESS = 1400, 10, 110, 22
@@ -146,6 +146,74 @@ def UnderTale_Fight(screen, clock):
 
             pygame.display.flip()
             
+    def show_game_over_screen():
+        fade_surf = pygame.Surface((WIDTH, HEIGHT))   # ← 8 spazi
+        fade_surf.fill(BLACK)
+        for alpha in range(0, 256, 4):
+            screen.fill(BLACK)
+            fade_surf.set_alpha(alpha)
+            screen.blit(fade_surf, (0, 0))
+            pygame.display.flip()
+            clock.tick(60)
+
+        start_ticks = pygame.time.get_ticks()
+        while True:
+            clock.tick(60)
+            for ev in pygame.event.get():
+                if ev.type == pygame.QUIT:
+                    pygame.quit(); sys.exit()
+                if ev.type == pygame.KEYDOWN:
+                    return
+
+            t = pygame.time.get_ticks() - start_ticks
+            screen.fill(BLACK)
+
+            if (t // 500) % 2 == 0:
+                title = font_big.render("GAME OVER", True, RED)
+                screen.blit(title, (WIDTH // 2 - title.get_width() // 2, HEIGHT // 2 - 90))
+
+            msg = font_med.render("Sans ti ha sconfitto...", True, WHITE)
+            screen.blit(msg, (WIDTH // 2 - msg.get_width() // 2, HEIGHT // 2 - 15))
+
+            phase_txt = font_small.render(
+                f"Sei arrivato alla fase {state['phase']} di 3", True, GRAY
+            )
+            screen.blit(phase_txt, (WIDTH // 2 - phase_txt.get_width() // 2, HEIGHT // 2 + 35))
+
+            cont = font_small.render("Premi un tasto per continuare", True, GRAY)
+            screen.blit(cont, (WIDTH // 2 - cont.get_width() // 2, HEIGHT // 2 + 90))
+
+            pygame.display.flip()
+
+    start_ticks = pygame.time.get_ticks()
+    while True:
+        clock.tick(60)
+        for ev in pygame.event.get():
+            if ev.type == pygame.QUIT:
+                pygame.quit(); sys.exit()
+            if ev.type == pygame.KEYDOWN:
+                return
+
+        t = pygame.time.get_ticks() - start_ticks
+        screen.fill(BLACK)
+
+        if (t // 500) % 2 == 0:
+            title = font_big.render("GAME OVER", True, RED)
+            screen.blit(title, (WIDTH // 2 - title.get_width() // 2, HEIGHT // 2 - 90))
+
+        msg = font_med.render("Sans ti ha sconfitto...", True, WHITE)
+        screen.blit(msg, (WIDTH // 2 - msg.get_width() // 2, HEIGHT // 2 - 15))
+
+        phase_txt = font_small.render(
+            f"Sei arrivato alla fase {state['phase']} di 3", True, GRAY
+        )
+        screen.blit(phase_txt, (WIDTH // 2 - phase_txt.get_width() // 2, HEIGHT // 2 + 35))
+
+        cont = font_small.render("Premi un tasto per continuare", True, GRAY)
+        screen.blit(cont, (WIDTH // 2 - cont.get_width() // 2, HEIGHT // 2 + 90))
+
+        pygame.display.flip()
+            
     # --- GAME LOOP ---
     while True:
         dt = clock.tick(60)
@@ -222,7 +290,9 @@ def UnderTale_Fight(screen, clock):
             for w in tunnels: t_rects.extend([w["top"], w["bot"]])
             check_damage(t_rects, 15)
 
-        if state["player_hp"] <= 0: return "MORTE"
+        if state["player_hp"] <= 0:
+            show_game_over_screen()
+            return "MORTE"
 
         # Rendering
         screen.fill(BLACK)
