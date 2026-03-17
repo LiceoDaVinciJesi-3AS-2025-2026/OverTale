@@ -4,9 +4,6 @@ import sans_battle
 
 def main(screen, clock, font_grande, font_piccolo):
     
-    # --- IMPOSTAZIONE DEBUG ---
-    MOSTRA_COLLISIONI = True # Cambia in False quando vuoi giocare normalmente
-
     WIDTH, HEIGHT = 900, 700
 #     WIDTH, HEIGHT = screen.get_size()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
