@@ -3,20 +3,7 @@ import sys
 import sans_battle
 
 
-
 def main(screen, clock, font_grande, font_piccolo):
-
-#cespugli & sans
-cespuglio_img = pygame.image.load("cespuglio.png").convert_alpha()
-cespuglio_img = pygame.transform.scale(cespuglio_img, (90, 90))
-sans_img=pygame.image.load("sansi.png").convert_alpha()
-sans_img=pygame.transform.scale(sans_img, (70, 98))
-
-def main(screen, clock, font_grande, font_piccolo):
-    
-    # --- IMPOSTAZIONE DEBUG ---
-    MOSTRA_COLLISIONI = True # Cambia in False quando vuoi giocare normalmente
-
 
     WIDTH, HEIGHT = 900, 700
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -69,12 +56,9 @@ def main(screen, clock, font_grande, font_piccolo):
         pygame.Rect(0, 640, 900, 60),     # Bosco inferiore
         # Alberi sparsi sulla mappa
         pygame.Rect(220, 260, 120, 70),
-        pygame.Rect(270, 480, 40, 60),
+        pygame.Rect(430, 460, 40, 50),
         pygame.Rect(610, 420, 40, 60),
-
         pygame.Rect(110, 380, 40, 50),
-
-        pygame.Rect(110, 380, 40, 50)
     ]
 
     current_dir = "down"
@@ -133,7 +117,6 @@ def main(screen, clock, font_grande, font_piccolo):
         # 2. Player
         screen.blit(sprites[current_dir], player_rect)
 
-
         # 3. Sans (solo se è ancora vivo) — disegnato PRIMA dei cespugli
         #    così i cespugli gli passano sopra e sembra nascosto
         if sans_vivo:
@@ -145,28 +128,3 @@ def main(screen, clock, font_grande, font_piccolo):
 
         pygame.display.flip()
         clock.tick(60)
-        
-        pygame.display.flip()
-        clock.tick(60)
-        
-    sans_img=pygame.image.load("sans.png").convert()
-    larghezza_originale = sans_img.get_width()
-    altezza_originale = sans_img.get_height()
-    nuova_larghezza = larghezza_originale // 10
-    nuova_altezza = altezza_originale //10
-    
-    sans_finale = pygame.transform.scale(sans_img, (nuova_larghezza, nuova_altezza))
-    
-    # DISEGNO
-    # 1. Disegna lo sfondo
-    screen.blit(mappa_img, (0, 0))
-    
-    screen.blit(sprites[current_dir], player_rect)
-    # 2. disegna sans
-    screen.blit(sans_img, (777, 203))
-    # 3. disegna i cespugli
-    screen.blit(cespuglio_img, (800, 220))
-    screen.blit(cespuglio_img, (730, 220))
-
-    pygame.display.flip()
-    clock.tick(60)
