@@ -309,7 +309,7 @@ def main() -> None:
                             volume_musica = min(1.0, volume_musica + 0.01)
                             pygame.mixer.music.set_volume(volume_musica)
                                         
-                    elif pulsante_uscita_volume.collidepoint(mPos):
+                    if pulsante_uscita_volume.collidepoint(mPos):
                         schermata = "impostazioni"
                     
                     elif pulsante_tasto_attivazione_musica.collidepoint(mPos):
