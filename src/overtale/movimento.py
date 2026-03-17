@@ -4,6 +4,9 @@ import sans_battle
 
 def main(screen, clock, font_grande, font_piccolo):
     
+    # --- IMPOSTAZIONE DEBUG ---
+    MOSTRA_COLLISIONI = True # Cambia in False quando vuoi giocare normalmente
+
     WIDTH, HEIGHT = 900, 700
 #     WIDTH, HEIGHT = screen.get_size()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -42,9 +45,6 @@ def main(screen, clock, font_grande, font_piccolo):
         pygame.Rect(430, 460, 40, 50),
         pygame.Rect(610, 420, 40, 60),
         pygame.Rect(110, 380, 40, 50)
-#         pygame.Rect(220, 240, 30, 50),       # Cluster sinistra
-#         pygame.Rect(300, 280, 20, 50),        # Albero centrale
-#         pygame.Rect(620, 420, 20,50)        # Bosco Sans
     ]
 
     current_dir = "down"
@@ -100,10 +100,10 @@ def main(screen, clock, font_grande, font_piccolo):
         
         screen.blit(sprites[current_dir], player_rect)
 
-
+# <<<<<<< HEAD
         pygame.display.flip()
         clock.tick(60)
-
+# =======
     sans_img=pygame.image.load("sans.png").convert()
     larghezza_originale = sans_img.get_width()
     altezza_originale = sans_img.get_height()
