@@ -7,17 +7,25 @@ def main() -> None:
     
     pygame.init()
     
-    pygame.mixer.init()
-    pygame.mixer.music.load("musica_menù.mp3") 
-    pygame.mixer.music.play(- 1)
-    musica_attiva = True
+    audio_disponibile = True
+    try:
+        pygame.mixer.init()
+        pygame.mixer.music.load("musica_menù.mp3") 
+        pygame.mixer.music.play(- 1)
+    except pygame.error:
+        print("Il gioco non avrà la musica di sottofondo perché questo computer ha le funzione dell'audio disabilitate.")
+        audio_disponibile = False
+    
+    musica_attiva = audio_disponibile
 
     screen = pygame.display.set_mode((1280, 720))
     pygame.display.set_caption("OverTale")
     
     # È il volume di default del gioco
     volume_musica = 0.50
-    pygame.mixer.music.set_volume(volume_musica) 
+    
+    if audio_disponibile:
+        pygame.mixer.music.set_volume(volume_musica) 
     
     font_grande = pygame.font.SysFont('Minecraft', 100)
     font_piccolo = pygame.font.SysFont('Minecraft', 67)
@@ -67,7 +75,15 @@ def main() -> None:
         
         # Dopo che avrai vinto, il gioco ti chiederà di premere esc per uscire per ricominciare
         if gioco_effettivo:
-            movimento.main(screen, clock, font_grande, font_piccolo)
+            risultato = movimento.main(screen, clock, font_grande, font_piccolo)
+            
+            # la funzione main di movimento.py contiene il ciclo (while True) che le permette 
+            # di ritornare "menù"
+            if risultato == "menù":
+                gioco_effettivo = False
+                schermata = "menù"
+            
+                screen = pygame.display.set_mode((1280, 720))
         
         mPos = pygame.mouse.get_pos()
 #         # Questa è una funzione che indica quando il mouse viene tenuto premuto (lo [0] indica il tasto sinistro del mouse).
@@ -75,7 +91,6 @@ def main() -> None:
 #         # Questa è una funzione che mi calcola quanto tempo, espresso in milliseondi (0,001 s), è passato dall'avvio di Pygame.
 #         tempo_attuale = pygame.time.get_ticks()
         
-
         screen.fill("black")
         # Schermata d'entrata
         if schermata == "menù":
@@ -285,13 +300,14 @@ def main() -> None:
                     # Quando musica_attiva = False, questi non funzioneranno più perché la variabile "musica_
                     # attiva" non è nel ciclo, quindi i due pulsanti dipendono solo dal valore esterno (fisso).
                     
-                    if pulsante_meno_volume.collidepoint(mPos) and musica_attiva:
-                        volume_musica = max(0.0, volume_musica - 0.01)
-                        pygame.mixer.music.set_volume(volume_musica)
-                        
-                    elif pulsante_più_volume.collidepoint(mPos) and musica_attiva:
-                        volume_musica = min(1.0, volume_musica + 0.01)
-                        pygame.mixer.music.set_volume(volume_musica)
+                    if audio_disponibile and musica_attiva:
+                        if pulsante_meno_volume.collidepoint(mPos) and musica_attiva:
+                            volume_musica = max(0.0, volume_musica - 0.01)
+                            pygame.mixer.music.set_volume(volume_musica)
+                            
+                        elif pulsante_più_volume.collidepoint(mPos) and musica_attiva:
+                            volume_musica = min(1.0, volume_musica + 0.01)
+                            pygame.mixer.music.set_volume(volume_musica)
                                         
                     elif pulsante_uscita_volume.collidepoint(mPos):
                         schermata = "impostazioni"
@@ -299,10 +315,11 @@ def main() -> None:
                     elif pulsante_tasto_attivazione_musica.collidepoint(mPos):
                         musica_attiva = not musica_attiva
                         
-                        if musica_attiva:
-                            pygame.mixer.music.set_volume(volume_musica)
-                        else:
-                            pygame.mixer.music.set_volume(0.0)
+                        if audio_disponibile:
+                            if musica_attiva:
+                                pygame.mixer.music.set_volume(volume_musica)
+                            else:
+                                pygame.mixer.music.set_volume(0.0)
                 
                 elif schermata == "salvataggio":
                     
