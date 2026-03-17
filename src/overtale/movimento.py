@@ -51,12 +51,14 @@ def main(screen, clock, font_grande, font_piccolo):
 
     # --- LISTA OGGETTI CON COLLISIONI (Alberi) ---
     alberi = [
+        
         # Bordi della mappa
         pygame.Rect(0, 0, 900, 60),       # Bosco superiore
         pygame.Rect(0, 640, 900, 60),     # Bosco inferiore
+        
         # Alberi sparsi sulla mappa
         pygame.Rect(220, 260, 120, 70),
-        pygame.Rect(430, 460, 40, 50),
+        pygame.Rect(270, 480, 40, 60),
         pygame.Rect(610, 420, 40, 60),
         pygame.Rect(110, 380, 40, 50),
     ]
