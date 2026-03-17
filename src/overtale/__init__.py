@@ -7,6 +7,7 @@ def main() -> None:
     
     pygame.init()
     
+    # Questa parte verifica se il computer ha l'audio abilitato o disabilitato
     audio_disponibile = True
     try:
         pygame.mixer.init()
@@ -165,6 +166,8 @@ def main() -> None:
             pulsante_più_volume = più_volume.get_rect(topleft=(980, 200))
             pulsante_tasto_attivazione_musica = tasto_attivazione_musica.get_rect(topleft=(475, 400))
             
+#             Questa era una parte per fare in modo che il volume scendesse tenendo premuto il pulsante.
+            
 #             if mouse_premuto and tempo_attuale - tempo_click > ritardo:
 #                 if tempo_attuale - ultimo_scorrimento > intervallo:
 # 
@@ -178,7 +181,6 @@ def main() -> None:
 # 
 #                     ultimo_scorrimento = tempo_attuale
             
-            # da mettere tutto il resto.
         
         # Schermata delle opzioni di salvataggio
         elif schermata == "salvataggio":
@@ -260,6 +262,7 @@ def main() -> None:
                     elif gioco_effettivo == True:
                         gioco_effettivo = False
                         schermata = "menù"
+            
             # Qua sono programmate tutte le reazioni del gioco quando premi i pulsanti.        
             if event.type == pygame.MOUSEBUTTONDOWN:
 
