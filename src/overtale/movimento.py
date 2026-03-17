@@ -3,10 +3,10 @@ import sys
 import sans_battle
 
 #cespugli & sans
-    cespuglio_img = pygame.image.load("cespuglio.png").convert_alpha()
-    cespuglio_img = pygame.transform.scale(cespuglio_img, (90, 90))
-    sans_img=pygame.image.load("sansi.png").convert_alpha()
-    sans_img=pygame.transform.scale(sans_img, (70, 98))
+cespuglio_img = pygame.image.load("cespuglio.png").convert_alpha()
+cespuglio_img = pygame.transform.scale(cespuglio_img, (90, 90))
+sans_img=pygame.image.load("sansi.png").convert_alpha()
+sans_img=pygame.transform.scale(sans_img, (70, 98))
 
 def main(screen, clock, font_grande, font_piccolo):
     
