@@ -103,10 +103,10 @@ def main(screen, clock, font_grande, font_piccolo):
         
         screen.blit(sprites[current_dir], player_rect)
 
-<<<<<<< HEAD
+
         pygame.display.flip()
         clock.tick(60)
-=======
+
     sans_img=pygame.image.load("sans.png").convert()
     larghezza_originale = sans_img.get_width()
     altezza_originale = sans_img.get_height()
