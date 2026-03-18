@@ -1,17 +1,20 @@
-def main() -> None:
-    import pygame
-    # È un modulo a parte con tutte le funzioni per salvare nel gioco
-    import salvataggi
-    # È un modulo a parte con tutte le funzione per lo svolgimento del gioco
-    import movimento
-    
+# Librerie pip
+import pygame
+
+# Moduli del mio package
+from . import salvataggi
+from . import movimento
+from . import resources
+
+def main() -> None:   
     pygame.init()
     
     # Questa parte verifica se il computer ha l'audio abilitato o disabilitato
     audio_disponibile = True
     try:
         pygame.mixer.init()
-        pygame.mixer.music.load("musica_menù.mp3") 
+        musica = resources.get_sound("musica_menù.mp3")
+#        pygame.mixer.music.load("musica_menù.mp3") 
         pygame.mixer.music.play(- 1)
     except pygame.error:
         print("Il gioco non avrà la musica di sottofondo perché questo computer ha le funzione dell'audio disabilitate.")
@@ -58,7 +61,8 @@ def main() -> None:
     uscita_selezione_salvataggi = font_piccolo.render("Esci", True, "white")
     
     # Questa è l'immagine dello sfondo.
-    immagine_sfondo = pygame.image.load("sfondo_schermata.png")
+    percorso_immagine_sfondo = resources.get_image("sfondo_schermata.png")
+    immagine_sfondo = pygame.image.load( percorso_immagine_sfondo )
 
     clock = pygame.time.Clock()
     schermata = "menù"

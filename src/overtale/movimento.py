@@ -1,6 +1,12 @@
-import pygame
+# Librerie Standard
 import sys
-import sans_battle
+
+# Librerie pip
+import pygame
+
+# Moduli del mio package
+from . import sans_battle
+from . import resources
 
 
 def main(screen, clock, font_grande, font_piccolo):
@@ -13,7 +19,8 @@ def main(screen, clock, font_grande, font_piccolo):
     # --- CARICAMENTO ASSET ---
     def carica_sprite(nome, colore_fallback):
         try:
-            img = pygame.image.load(nome).convert_alpha()
+            percorso_img = resources.get_image(nome)
+            img = pygame.image.load(percorso_img).convert_alpha()
             return pygame.transform.scale(img, (64, 64))
         except:
             s = pygame.Surface((64, 64))
@@ -21,7 +28,8 @@ def main(screen, clock, font_grande, font_piccolo):
             return s
 
     try:
-        mappa_img = pygame.image.load("mappa.png").convert()
+        immagine_mappa_img = resources.get_image("mappa.png")
+        mappa_img = pygame.image.load(immagine_mappa_img).convert()
         mappa_img = pygame.transform.scale(mappa_img, (WIDTH, HEIGHT))
     except:
         mappa_img = pygame.Surface((WIDTH, HEIGHT))
@@ -36,14 +44,16 @@ def main(screen, clock, font_grande, font_piccolo):
 
     # --- CARICAMENTO SANS E CESPUGLI (una volta sola, fuori dal loop) ---
     try:
-        sans_img = pygame.image.load("sansi.png").convert_alpha()
+        percorso_sans_img = resources.get_image("sansi.png")
+        sans_img = pygame.image.load(percorso_sans_img).convert_alpha()
         sans_img = pygame.transform.scale(sans_img, (70, 98))
     except:
         sans_img = pygame.Surface((70, 98))
         sans_img.fill((100, 149, 237))
 
     try:
-        cespuglio_img = pygame.image.load("cespuglio.png").convert_alpha()
+        percorso_cespuglio_img = resources.get_image("cespuglio.png")
+        cespuglio_img = pygame.image.load(percorso_cespuglio_img).convert_alpha()
         cespuglio_img = pygame.transform.scale(cespuglio_img, (90, 90))
     except:
         cespuglio_img = pygame.Surface((90, 90))

@@ -1,6 +1,12 @@
-import pygame
+# Librerie Standard
 import random
 import sys
+
+# Librerie pip
+import pygame
+
+# Moduli del mio package
+from . import resources
 
 def UnderTale_Fight(screen, clock):
     # --- INIZIALIZZAZIONE RISORSE ---
@@ -17,11 +23,14 @@ def UnderTale_Fight(screen, clock):
     arena = pygame.Rect(150, 200, 600, 300)
     
     try:
-        sans_img = pygame.image.load("Sans.png")
+        percorso_sans_img = resources.get_image("Sans.png")
+        sans_img = pygame.image.load(percorso_sans_img)
         sans_img = pygame.transform.scale(sans_img, (120, 120))
-        player_img = pygame.image.load("Cuore.png")
+        percorso_player_img = resources.get_image("Cuore.png")
+        player_img = pygame.image.load(percorso_player_img)
         player_img = pygame.transform.scale(player_img, (30, 30))
-        bone_src = pygame.image.load("Sans_osso.png").convert_alpha()
+        percorso_bone_src = resources.get_image("Sans_osso.png")
+        bone_src = pygame.image.load(percorso_bone_src).convert_alpha()
     except:
         sans_img = pygame.Surface((120, 120)); sans_img.fill(WHITE)
         player_img = pygame.Surface((30, 30)); player_img.fill(RED)

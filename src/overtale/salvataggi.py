@@ -1,6 +1,7 @@
-# Modulo "salvataggi.py"
-
+# Librerie Standard
 from pathlib import Path
+
+# Librerie pip
 from platformdirs import user_data_dir
 
 # 1° funzione.
