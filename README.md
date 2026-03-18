@@ -4,7 +4,7 @@ Made by Alessandro, Massimo and Manuel.
 
 
 
-map, sans in the open world part, bush, all images of the knight were made using gemini images+
+map, sans in the open world part, bush, all images of the knight were made using gemini images
 
 while the heart, sans, the background of the menu were all searched on google.
 
