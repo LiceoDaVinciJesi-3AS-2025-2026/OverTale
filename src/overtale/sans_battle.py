@@ -32,7 +32,7 @@ def UnderTale_Fight(screen, clock):
 
     # --- VARIABILI DI STATO ---
     player_hp_max, sans_hp_max = 100, 100
-    PHASE_DURATION = 5000
+    PHASE_DURATION = 12000
     speed, gravity, jump_power = 5, 0.7, -13
     BONE_INTERVAL, LASER_INTERVAL, LASER_LIFE = 380, 1100, 1000
     TUNNEL_INTERVAL, TUNNEL_SPEED, TUNNEL_GAP, BONE_THICKNESS = 1400, 10, 110, 22
