@@ -261,3 +261,12 @@ def UnderTale_Fight(screen, clock):
 
         draw_sans_hp_bar(); draw_ui()
         pygame.display.flip()
+
+# sans_battle.py - battaglia contro Sans
+
+# In questo file sono contenute tutte le funzioni inerenti alla battaglia contro l'antagonista del gioco
+
+# License: See LICENSE file in the project root for details.
+
+# Authors: 
+# Massimo Di Gaspare <massimo.digaspare09@gmail.com>

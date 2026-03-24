@@ -1,3 +1,4 @@
+# Librerie pip
 from importlib.resources import files
 from pathlib import Path
 
@@ -7,3 +8,12 @@ def get_sound(filename: str) -> Path:
 
 def get_image(filename: str):
     return files(__package__) / "images" / filename
+
+# resources.py - gestione dei files nel gioco
+
+# In questo file sono presenti le funzioni per la gestione e l'utilizzo di files come le immagini e le musiche nei codici.
+
+# License: See LICENSE file in the project root for details.
+
+# Authors: 
+# Massimo Di Gaspare <massimo.digaspare09@gmail.com>

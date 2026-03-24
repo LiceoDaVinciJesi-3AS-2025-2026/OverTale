@@ -140,3 +140,13 @@ def main(screen, clock, font_grande, font_piccolo):
 
         pygame.display.flip()
         clock.tick(60)
+
+# movimento.py - movimento del giocatore nella mappa
+
+# In questo file è inserito tutto ciò che è inerente alla prima parte del gameplay, ossia il movimento
+# del personaggio nella mappa e l'incontro con l'antagonista che dà l'avvio alla seconda parte.
+
+# License: See LICENSE file in the project root for details.
+
+# Authors: 
+# Massimo Di Gaspare <massimo.digaspare09@gmail.com>

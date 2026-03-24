@@ -14,7 +14,7 @@ def main() -> None:
     try:
         pygame.mixer.init()
         musica = resources.get_sound("musica_menù.mp3")
-#        pygame.mixer.music.load("musica_menù.mp3") 
+        pygame.mixer.music.load( musica ) 
         pygame.mixer.music.play(- 1)
     except pygame.error:
         print("Il gioco non avrà la musica di sottofondo perché questo computer ha le funzione dell'audio disabilitate.")
@@ -380,3 +380,13 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+# __init__.py - schermate del menù e avvio del gioco
+
+# In questo file sono inserite le schermate del menù, delle impostazioni e dell'uscita dal gioco.
+# Da qui, inoltre, vengono gestite tutte le funzioni del volume, dei salvataggio e dell'avvio del gioco.
+
+# License: See LICENSE file in the project root for details.
+
+# Authors: 
+# Massimo Di Gaspare <massimo.digaspare09@gmail.com>

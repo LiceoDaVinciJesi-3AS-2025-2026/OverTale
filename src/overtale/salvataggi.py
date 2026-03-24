@@ -35,3 +35,14 @@ def lista_salvataggi() -> list[str]:
     cartella = percorso_salvataggi()
     
     return [f.stem for f in cartella.glob("*.txt")]
+
+# salvataggi.py - impostazioni di salvataggio del gioco
+
+# In questo file sono contenute tutte le funzioni per la creazione e gestione dei salvataggi.
+# L'abbiamo creato perché ci era stato richiesto di utilizzare i percorsi e la gestione dei files,
+# anche se non ce n'è alcun bisogno vista la breve durata del nostro gioco.
+
+# License: See LICENSE file in the project root for details.
+
+# Authors: 
+# Massimo Di Gaspare <massimo.digaspare09@gmail.com>
