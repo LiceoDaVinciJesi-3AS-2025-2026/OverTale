@@ -388,5 +388,7 @@ if __name__ == "__main__":
 
 # License: See LICENSE file in the project root for details.
 
-# Authors: 
+# Authors:
+# Manuel Canonici <manuelcanonici09@gmail.com>
 # Massimo Di Gaspare <massimo.digaspare09@gmail.com>
+# Alessandro Meschini <ale.meschini5@gmail.com>

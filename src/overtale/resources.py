@@ -16,4 +16,6 @@ def get_image(filename: str):
 # License: See LICENSE file in the project root for details.
 
 # Authors: 
+# Manuel Canonici <manuelcanonici09@gmail.com>
 # Massimo Di Gaspare <massimo.digaspare09@gmail.com>
+# Alessandro Meschini <ale.meschini5@gmail.com>
