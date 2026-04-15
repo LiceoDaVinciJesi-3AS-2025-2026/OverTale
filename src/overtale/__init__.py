@@ -31,8 +31,8 @@ def main() -> None:
     if audio_disponibile:
         pygame.mixer.music.set_volume(volume_musica)
     
-    font_grande = pygame.font.SysFont('Minecraft', 100)
-    font_piccolo = pygame.font.SysFont('Minecraft', 67)
+    font_grande = pygame.font.SysFont('Arial', 100)
+    font_piccolo = pygame.font.SysFont('Arial', 67)
     
     # Questi sono tutti i titoli e le scritte.
     titolo = font_grande.render("OverTale", True, "white")

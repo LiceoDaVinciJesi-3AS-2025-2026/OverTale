@@ -15,7 +15,8 @@ if any problems arise because of these photoes contact our head of administratio
 
 
 "massimo.digaspare09@gmail.com"
-
+"ale.meschini5@gmail.com"
+"manuelcanonici09@gmail.com"
 
 
 <hr>
