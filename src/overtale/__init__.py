@@ -1,16 +1,20 @@
-def main() -> None:
-    import pygame
-    # È un modulo a parte con tutte le funzioni per salvare nel gioco
-    import salvataggi
-    # È un modulo a parte con tutte le funzione per lo svolgimento del gioco
-    import movimento
-    
+# Librerie pip
+import pygame
+
+# Moduli del mio package
+from . import salvataggi
+from . import movimento
+from . import resources
+
+def main() -> None:   
     pygame.init()
     
+    # Questa parte verifica se il computer ha l'audio abilitato o disabilitato
     audio_disponibile = True
     try:
         pygame.mixer.init()
-        pygame.mixer.music.load("musica_menù.mp3") 
+        musica = resources.get_sound("musica_menù.mp3")
+        pygame.mixer.music.load( musica ) 
         pygame.mixer.music.play(- 1)
     except pygame.error:
         print("Il gioco non avrà la musica di sottofondo perché questo computer ha le funzione dell'audio disabilitate.")
@@ -25,10 +29,10 @@ def main() -> None:
     volume_musica = 0.50
     
     if audio_disponibile:
-        pygame.mixer.music.set_volume(volume_musica) 
+        pygame.mixer.music.set_volume(volume_musica)
     
-    font_grande = pygame.font.SysFont('Minecraft', 100)
-    font_piccolo = pygame.font.SysFont('Minecraft', 67)
+    font_grande = pygame.font.SysFont('Arial', 100)
+    font_piccolo = pygame.font.SysFont('Arial', 67)
     
     # Questi sono tutti i titoli e le scritte.
     titolo = font_grande.render("OverTale", True, "white")
@@ -57,7 +61,8 @@ def main() -> None:
     uscita_selezione_salvataggi = font_piccolo.render("Esci", True, "white")
     
     # Questa è l'immagine dello sfondo.
-    immagine_sfondo = pygame.image.load("sfondo_schermata.png")
+    percorso_immagine_sfondo = resources.get_image("sfondo_schermata.png")
+    immagine_sfondo = pygame.image.load( percorso_immagine_sfondo )
 
     clock = pygame.time.Clock()
     schermata = "menù"
@@ -165,6 +170,8 @@ def main() -> None:
             pulsante_più_volume = più_volume.get_rect(topleft=(980, 200))
             pulsante_tasto_attivazione_musica = tasto_attivazione_musica.get_rect(topleft=(475, 400))
             
+#             Questa era una parte per fare in modo che il volume scendesse tenendo premuto il pulsante.
+            
 #             if mouse_premuto and tempo_attuale - tempo_click > ritardo:
 #                 if tempo_attuale - ultimo_scorrimento > intervallo:
 # 
@@ -178,7 +185,6 @@ def main() -> None:
 # 
 #                     ultimo_scorrimento = tempo_attuale
             
-            # da mettere tutto il resto.
         
         # Schermata delle opzioni di salvataggio
         elif schermata == "salvataggio":
@@ -260,6 +266,7 @@ def main() -> None:
                     elif gioco_effettivo == True:
                         gioco_effettivo = False
                         schermata = "menù"
+            
             # Qua sono programmate tutte le reazioni del gioco quando premi i pulsanti.        
             if event.type == pygame.MOUSEBUTTONDOWN:
 
@@ -373,3 +380,15 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+# __init__.py - schermate del menù e avvio del gioco
+
+# In questo file sono inserite le schermate del menù, delle impostazioni e dell'uscita dal gioco.
+# Da qui, inoltre, vengono gestite tutte le funzioni del volume, dei salvataggio e dell'avvio del gioco.
+
+# License: See LICENSE file in the project root for details.
+
+# Authors:
+# Manuel Canonici <manuelcanonici09@gmail.com>
+# Massimo Di Gaspare <massimo.digaspare09@gmail.com>
+# Alessandro Meschini <ale.meschini5@gmail.com>
